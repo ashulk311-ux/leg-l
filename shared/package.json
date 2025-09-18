@@ -1,0 +1,25 @@
+{
+  "name": "@legal-docs/shared",
+  "version": "1.0.0",
+  "description": "Shared types and utilities for Legal Document Management System",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "jest"
+  },
+  "keywords": ["legal", "documents", "types", "utilities"],
+  "author": "Legal Doc System Team",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "@types/node": "^20.8.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.5"
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
+  }
+}
