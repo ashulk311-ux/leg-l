@@ -1,7 +1,39 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+  Query,
+  UseInterceptors,
+  UploadedFile,
+  ParseIntPipe,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+  ApiQuery,
+} from '@nestjs/swagger';
+
 import { DocumentsService } from './documents.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Public } from '../common/decorators/public.decorator';
+import {
+  CreateDocumentDto,
+  UpdateDocumentDto,
+  DocumentSearchDto,
+  Document,
+  DocumentSearchResponse,
+} from '@legal-docs/shared';
 
 @ApiTags('Documents')
 @Controller('documents')
@@ -11,37 +43,148 @@ export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
   @Post()
+  @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Upload a new document' })
-  @ApiResponse({ status: 201, description: 'Document uploaded successfully' })
-  async upload(@Request() req: any, @Body() body: any) {
-    return { message: 'Document upload endpoint - to be implemented' };
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Document file to upload',
+        },
+        title: {
+          type: 'string',
+          description: 'Document title',
+        },
+        category: {
+          type: 'string',
+          enum: ['statute', 'judgement', 'circular', 'notification', 'contract', 'policy', 'other'],
+          description: 'Document category',
+        },
+        tags: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Document tags',
+        },
+        jurisdiction: {
+          type: 'string',
+          description: 'Legal jurisdiction',
+        },
+        court: {
+          type: 'string',
+          description: 'Court name',
+        },
+        year: {
+          type: 'number',
+          description: 'Document year',
+        },
+        caseNumber: {
+          type: 'string',
+          description: 'Case number',
+        },
+        isPublic: {
+          type: 'boolean',
+          description: 'Whether document is public',
+        },
+      },
+      required: ['file', 'title', 'category'],
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Document uploaded successfully', type: Document })
+  @ApiResponse({ status: 400, description: 'Invalid file or data' })
+  async upload(
+    @Request() req: any,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createDocumentDto: CreateDocumentDto,
+  ): Promise<Document> {
+    return this.documentsService.create(createDocumentDto, file, req.user.sub);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all documents' })
-  @ApiResponse({ status: 200, description: 'Documents retrieved successfully' })
-  async findAll(@Request() req: any, @Query() query: any) {
-    return { message: 'Get documents endpoint - to be implemented' };
+  @ApiOperation({ summary: 'Get all documents for current user' })
+  @ApiQuery({ name: 'query', required: false, type: String })
+  @ApiQuery({ name: 'category', required: false, type: String })
+  @ApiQuery({ name: 'tags', required: false, type: [String] })
+  @ApiQuery({ name: 'jurisdiction', required: false, type: String })
+  @ApiQuery({ name: 'court', required: false, type: String })
+  @ApiQuery({ name: 'year', required: false, type: Number })
+  @ApiQuery({ name: 'status', required: false, type: String })
+  @ApiQuery({ name: 'isPublic', required: false, type: Boolean })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'sortBy', required: false, type: String })
+  @ApiQuery({ name: 'sortOrder', required: false, type: String })
+  @ApiResponse({ status: 200, description: 'Documents retrieved successfully', type: DocumentSearchResponse })
+  async findAll(
+    @Request() req: any,
+    @Query() searchDto: DocumentSearchDto,
+  ): Promise<DocumentSearchResponse> {
+    return this.documentsService.findAll(req.user.sub, searchDto);
+  }
+
+  @Get('public')
+  @Public()
+  @ApiOperation({ summary: 'Search public documents' })
+  @ApiQuery({ name: 'query', required: false, type: String })
+  @ApiQuery({ name: 'category', required: false, type: String })
+  @ApiQuery({ name: 'tags', required: false, type: [String] })
+  @ApiQuery({ name: 'jurisdiction', required: false, type: String })
+  @ApiQuery({ name: 'court', required: false, type: String })
+  @ApiQuery({ name: 'year', required: false, type: Number })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiResponse({ status: 200, description: 'Public documents retrieved successfully', type: DocumentSearchResponse })
+  async findPublicDocuments(
+    @Query() searchDto: DocumentSearchDto,
+  ): Promise<DocumentSearchResponse> {
+    return this.documentsService.searchPublicDocuments(searchDto);
+  }
+
+  @Get('stats')
+  @ApiOperation({ summary: 'Get document statistics for current user' })
+  @ApiResponse({ status: 200, description: 'Document statistics retrieved' })
+  async getStats(@Request() req: any) {
+    return this.documentsService.getStats(req.user.sub);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get document by ID' })
-  @ApiResponse({ status: 200, description: 'Document retrieved successfully' })
-  async findOne(@Param('id') id: string) {
-    return { message: `Get document ${id} endpoint - to be implemented` };
+  @ApiResponse({ status: 200, description: 'Document retrieved successfully', type: Document })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async findOne(@Param('id') id: string, @Request() req: any): Promise<Document> {
+    return this.documentsService.findOne(id, req.user.sub);
+  }
+
+  @Get(':id/download')
+  @ApiOperation({ summary: 'Get document download URL' })
+  @ApiResponse({ status: 200, description: 'Download URL generated successfully' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async getDownloadUrl(@Param('id') id: string, @Request() req: any): Promise<{ url: string }> {
+    const url = await this.documentsService.getDownloadUrl(id, req.user.sub);
+    return { url };
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update document' })
-  @ApiResponse({ status: 200, description: 'Document updated successfully' })
-  async update(@Param('id') id: string, @Body() body: any) {
-    return { message: `Update document ${id} endpoint - to be implemented` };
+  @ApiResponse({ status: 200, description: 'Document updated successfully', type: Document })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async update(
+    @Param('id') id: string,
+    @Body() updateDocumentDto: UpdateDocumentDto,
+    @Request() req: any,
+  ): Promise<Document> {
+    return this.documentsService.update(id, updateDocumentDto, req.user.sub);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete document' })
   @ApiResponse({ status: 200, description: 'Document deleted successfully' })
-  async remove(@Param('id') id: string) {
-    return { message: `Delete document ${id} endpoint - to be implemented` };
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async remove(@Param('id') id: string, @Request() req: any): Promise<{ message: string }> {
+    await this.documentsService.remove(id, req.user.sub);
+    return { message: 'Document deleted successfully' };
   }
 }

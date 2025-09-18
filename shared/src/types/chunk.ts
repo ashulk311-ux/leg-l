@@ -55,6 +55,7 @@ export interface ChunkProcessingResult {
 // Vector Search Types
 export interface VectorSearchDto {
   query: string;
+  queryEmbedding?: number[];
   documentIds?: string[];
   topK?: number;
   scoreThreshold?: number;

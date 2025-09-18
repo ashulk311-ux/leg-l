@@ -1,7 +1,8 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { SearchService } from './search.service';
+import { VectorSearchDto, VectorSearchResponse } from '@legal-docs/shared';
 
 @ApiTags('Search')
 @Controller('search')
@@ -12,8 +13,16 @@ export class SearchController {
 
   @Post('similarity')
   @ApiOperation({ summary: 'Perform similarity search' })
-  @ApiResponse({ status: 200, description: 'Search results retrieved' })
-  async similaritySearch(@Body() body: any) {
-    return { message: 'Similarity search endpoint - to be implemented' };
+  @ApiResponse({ status: 200, description: 'Search results retrieved', type: VectorSearchResponse })
+  @ApiResponse({ status: 400, description: 'Invalid search parameters' })
+  async similaritySearch(@Body() searchDto: VectorSearchDto): Promise<VectorSearchResponse> {
+    return this.searchService.similaritySearch(searchDto);
+  }
+
+  @Get('stats')
+  @ApiOperation({ summary: 'Get vector store statistics' })
+  @ApiResponse({ status: 200, description: 'Vector store statistics retrieved' })
+  async getVectorStoreStats() {
+    return this.searchService.getVectorStoreStats();
   }
 }
