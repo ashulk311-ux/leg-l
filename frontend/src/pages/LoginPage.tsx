@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
@@ -11,12 +9,10 @@ import { Input } from '../components/ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
 import { useAuthStore } from '../stores/auth';
 
-const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
+interface LoginFormData {
+  email: string;
+  password: string;
+}
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -28,9 +24,7 @@ function LoginPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-  });
+  } = useForm<LoginFormData>();
 
   const onSubmit = async (data: LoginFormData) => {
     try {
@@ -46,13 +40,29 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      backgroundColor: '#f9fafb', 
+      padding: '3rem 1rem' 
+    }}>
+      <div style={{ maxWidth: '28rem', width: '100%' }}>
         {/* Header */}
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary-100">
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ 
+            margin: '0 auto', 
+            height: '3rem', 
+            width: '3rem', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            borderRadius: '50%', 
+            backgroundColor: '#eff6ff' 
+          }}>
             <svg
-              className="h-8 w-8 text-primary-600"
+              style={{ height: '2rem', width: '2rem', color: '#3b82f6' }}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -65,16 +75,25 @@ function LoginPage() {
               />
             </svg>
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+          <h2 style={{ 
+            marginTop: '1.5rem', 
+            fontSize: '1.875rem', 
+            fontWeight: '700', 
+            color: '#111827' 
+          }}>
             Sign in to your account
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p style={{ 
+            marginTop: '0.5rem', 
+            fontSize: '0.875rem', 
+            color: '#6b7280' 
+          }}>
             Access your legal document management system
           </p>
         </div>
 
         {/* Login Form */}
-        <Card className="shadow-lg">
+        <Card style={{ boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' }}>
           <CardHeader>
             <CardTitle>Welcome back</CardTitle>
             <CardDescription>
@@ -82,7 +101,7 @@ function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <Input
                 {...register('email')}
                 type="email"
@@ -122,23 +141,38 @@ function LoginPage() {
                 }
               />
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
                   <input
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    style={{ 
+                      height: '1rem', 
+                      width: '1rem', 
+                      color: '#3b82f6', 
+                      borderColor: '#d1d5db', 
+                      borderRadius: '0.25rem' 
+                    }}
                   />
-                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                  <label htmlFor="remember-me" style={{ 
+                    marginLeft: '0.5rem', 
+                    display: 'block', 
+                    fontSize: '0.875rem', 
+                    color: '#111827' 
+                  }}>
                     Remember me
                   </label>
                 </div>
 
-                <div className="text-sm">
+                <div style={{ fontSize: '0.875rem' }}>
                   <Link
                     to="/forgot-password"
-                    className="font-medium text-primary-600 hover:text-primary-500"
+                    style={{ 
+                      fontWeight: '500', 
+                      color: '#3b82f6', 
+                      textDecoration: 'none' 
+                    }}
                   >
                     Forgot your password?
                   </Link>
@@ -147,7 +181,7 @@ function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full"
+                style={{ width: '100%' }}
                 loading={isLoading}
                 disabled={isLoading}
               >
@@ -155,23 +189,44 @@ function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
+            <div style={{ marginTop: '1.5rem' }}>
+              <div style={{ position: 'relative' }}>
+                <div style={{ 
+                  position: 'absolute', 
+                  top: '0', 
+                  left: '0', 
+                  right: '0', 
+                  display: 'flex', 
+                  alignItems: 'center' 
+                }}>
+                  <div style={{ width: '100%', borderTop: '1px solid #d1d5db' }} />
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                <div style={{ 
+                  position: 'relative', 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  fontSize: '0.875rem' 
+                }}>
+                  <span style={{ 
+                    padding: '0 0.5rem', 
+                    backgroundColor: 'white', 
+                    color: '#6b7280' 
+                  }}>Or continue with</span>
                 </div>
               </div>
 
-              <div className="mt-6 grid grid-cols-2 gap-3">
+              <div style={{ 
+                marginTop: '1.5rem', 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(2, 1fr)', 
+                gap: '0.75rem' 
+              }}>
                 <Button
                   variant="outline"
-                  className="w-full"
+                  style={{ width: '100%' }}
                   onClick={() => toast('Google authentication coming soon!')}
                 >
-                  <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
+                  <svg style={{ height: '1.25rem', width: '1.25rem', marginRight: '0.5rem' }} viewBox="0 0 24 24">
                     <path
                       fill="currentColor"
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -194,10 +249,10 @@ function LoginPage() {
 
                 <Button
                   variant="outline"
-                  className="w-full"
+                  style={{ width: '100%' }}
                   onClick={() => toast('Microsoft authentication coming soon!')}
                 >
-                  <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
+                  <svg style={{ height: '1.25rem', width: '1.25rem', marginRight: '0.5rem' }} viewBox="0 0 24 24">
                     <path fill="#f25022" d="M1 1h10v10H1z" />
                     <path fill="#00a4ef" d="M13 1h10v10H13z" />
                     <path fill="#7fba00" d="M1 13h10v10H1z" />
@@ -211,12 +266,16 @@ function LoginPage() {
         </Card>
 
         {/* Sign up link */}
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
             Don't have an account?{' '}
             <Link
               to="/register"
-              className="font-medium text-primary-600 hover:text-primary-500"
+              style={{ 
+                fontWeight: '500', 
+                color: '#3b82f6', 
+                textDecoration: 'none' 
+              }}
             >
               Sign up for free
             </Link>

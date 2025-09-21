@@ -16,6 +16,7 @@ const SearchPage = lazy(() => import('../pages/SearchPage'));
 const AIPage = lazy(() => import('../pages/AIPage'));
 const AdminPage = lazy(() => import('../pages/AdminPage'));
 const ProfilePage = lazy(() => import('../pages/ProfilePage'));
+const TestAuth = lazy(() => import('../pages/TestAuth'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 // Protected Route component
@@ -179,6 +180,16 @@ export function AppRouter() {
                 <AdminPage />
               </Layout>
             </ProtectedRoute>
+          }
+        />
+
+        {/* Test route */}
+        <Route
+          path="/test-auth"
+          element={
+            <Layout>
+              <TestAuth />
+            </Layout>
           }
         />
 
