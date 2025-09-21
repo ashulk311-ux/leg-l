@@ -138,7 +138,7 @@ export class LlmService {
         length: request.length,
         citations,
         processingTime: response.processingTime,
-        model: response.model,
+        model: response.model as any,
         confidence: this.calculateConfidence(response.content),
       };
     } catch (error) {
@@ -193,7 +193,7 @@ export class LlmService {
         sources,
         confidence: this.calculateConfidence(response.content),
         processingTime: response.processingTime,
-        model: response.model,
+        model: response.model as any,
         relatedQuestions: this.generateRelatedQuestions(request.question),
       };
     } catch (error) {
@@ -263,7 +263,7 @@ export class LlmService {
 
     return {
       content: response.choices[0].message.content || '',
-      model: response.model,
+      model: response.model as any,
       provider: this.config.provider,
       usage: {
         promptTokens: response.usage?.prompt_tokens || 0,

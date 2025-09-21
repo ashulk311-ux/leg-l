@@ -10,7 +10,6 @@ import * as bcrypt from 'bcryptjs';
 
 import { UsersService } from '../users/users.service';
 import {
-  User,
   LoginDto,
   RegisterDto,
   AuthResponse,
@@ -19,6 +18,7 @@ import {
   PasswordResetConfirmDto,
   JwtPayload,
 } from '@legal-docs/shared';
+import { UserEntity } from '../users/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -28,11 +28,13 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<User | null> {
+  async validateUser(email: string, password: string): Promise<UserEntity | null> {
     const user = await this.usersService.findByEmail(email);
     if (user && (await bcrypt.compare(password, user.passwordHash!))) {
-      const { passwordHash, ...result } = user;
-      return result as User;
+      // Convert Mongoose document to plain object
+      const userObj = (user as any).toObject();
+      const { passwordHash, ...result } = userObj;
+      return result as UserEntity;
     }
     return null;
   }
@@ -48,22 +50,22 @@ export class AuthService {
     }
 
     const payload: JwtPayload = {
-      sub: user._id!,
+      sub: (user as any)._id,
       email: user.email,
       role: user.role,
     };
 
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      secret: this.configService.get<string>('JWT_REFRESH_SECRET', 'your-super-secret-refresh-key-change-this-in-production'),
       expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d'),
     });
 
     // Update last login
-    await this.usersService.updateLastLogin(user._id!);
+    await this.usersService.updateLastLogin((user as any)._id);
 
     return {
-      user: user as Omit<User, 'passwordHash'>,
+      user: user as Omit<UserEntity, 'passwordHash'>,
       accessToken,
       refreshToken,
       expiresIn: this.getTokenExpirationTime(),
@@ -72,9 +74,9 @@ export class AuthService {
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
     // Check if user already exists
-    const existingUser = await this.usersService.findByEmail(registerDto.email);
-    if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+    const existingUserEntity = await this.usersService.findByEmail(registerDto.email);
+    if (existingUserEntity) {
+      throw new ConflictException('UserEntity with this email already exists');
     }
 
     // Hash password
@@ -85,26 +87,26 @@ export class AuthService {
     const user = await this.usersService.create({
       ...registerDto,
       passwordHash,
-      role: registerDto.role || 'user',
+      role: registerDto.role || 'user' as any,
     });
 
     // Generate tokens
     const payload: JwtPayload = {
-      sub: user._id!,
+      sub: (user as any)._id,
       email: user.email,
       role: user.role,
     };
 
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      secret: this.configService.get<string>('JWT_REFRESH_SECRET', 'your-super-secret-refresh-key-change-this-in-production'),
       expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d'),
     });
 
     const { passwordHash: _, ...userWithoutPassword } = user;
 
     return {
-      user: userWithoutPassword as Omit<User, 'passwordHash'>,
+      user: userWithoutPassword as Omit<UserEntity, 'passwordHash'>,
       accessToken,
       refreshToken,
       expiresIn: this.getTokenExpirationTime(),
@@ -114,7 +116,7 @@ export class AuthService {
   async refreshToken(refreshTokenDto: RefreshTokenDto): Promise<AuthResponse> {
     try {
       const payload = this.jwtService.verify(refreshTokenDto.refreshToken, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET', 'your-super-secret-refresh-key-change-this-in-production'),
       }) as JwtPayload;
 
       const user = await this.usersService.findById(payload.sub);
@@ -123,21 +125,21 @@ export class AuthService {
       }
 
       const newPayload: JwtPayload = {
-        sub: user._id!,
+        sub: (user as any)._id,
         email: user.email,
         role: user.role,
       };
 
       const accessToken = this.jwtService.sign(newPayload);
       const newRefreshToken = this.jwtService.sign(newPayload, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET', 'your-super-secret-refresh-key-change-this-in-production'),
         expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d'),
       });
 
       const { passwordHash, ...userWithoutPassword } = user;
 
       return {
-        user: userWithoutPassword as Omit<User, 'passwordHash'>,
+        user: userWithoutPassword as Omit<UserEntity, 'passwordHash'>,
         accessToken,
         refreshToken: newRefreshToken,
         expiresIn: this.getTokenExpirationTime(),
@@ -156,7 +158,7 @@ export class AuthService {
 
     // Generate reset token
     const resetToken = this.jwtService.sign(
-      { sub: user._id, email: user.email },
+      { sub: (user as any)._id, email: user.email },
       { expiresIn: '1h' },
     );
 
@@ -191,7 +193,7 @@ export class AuthService {
       );
 
       // Update user password
-      await this.usersService.updatePassword(user._id!, passwordHash);
+      await this.usersService.updatePassword((user as any)._id, passwordHash);
     } catch (error) {
       throw new BadRequestException('Invalid or expired reset token');
     }
@@ -204,7 +206,7 @@ export class AuthService {
     // 3. Clear any server-side sessions
     
     // For now, we'll just log the logout event
-    console.log(`User ${userId} logged out`);
+    console.log(`UserEntity ${userId} logged out`);
   }
 
   private getTokenExpirationTime(): number {

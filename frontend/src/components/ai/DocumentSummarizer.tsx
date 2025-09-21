@@ -3,7 +3,6 @@ import { useMutation } from '@tanstack/react-query';
 import { 
   LightBulbIcon,
   DocumentTextIcon,
-  ClockIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
   ArrowPathIcon
@@ -12,7 +11,8 @@ import toast from 'react-hot-toast';
 
 import { Button } from '../ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/Card';
-import { aiService, SummarizationRequest, SummaryLength } from '../../services/ai';
+import { aiService } from '../../services/ai';
+import { SummarizationRequest, SummaryLength } from '@shared/types';
 import { Document } from '@shared/types';
 
 interface DocumentSummarizerProps {
@@ -26,7 +26,7 @@ export function DocumentSummarizer({
   documentId, 
   onSummaryGenerated 
 }: DocumentSummarizerProps) {
-  const [summaryLength, setSummaryLength] = useState<SummaryLength>('medium');
+  const [summaryLength, setSummaryLength] = useState<SummaryLength | 'custom'>(SummaryLength.MEDIUM);
   const [customLength, setCustomLength] = useState(500);
   const [generatedSummary, setGeneratedSummary] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -57,8 +57,8 @@ export function DocumentSummarizer({
     try {
       const request: SummarizationRequest = {
         documentId: targetDocumentId,
-        length: summaryLength === 'custom' ? 'custom' : summaryLength,
-        customLength: summaryLength === 'custom' ? customLength : undefined,
+        length: summaryLength === 'custom' ? SummaryLength.MEDIUM : summaryLength,
+        includeCitations: true,
       };
 
       await summarizationMutation.mutateAsync(request);
@@ -67,13 +67,13 @@ export function DocumentSummarizer({
     }
   };
 
-  const getLengthDescription = (length: SummaryLength) => {
+  const getLengthDescription = (length: SummaryLength | 'custom') => {
     switch (length) {
-      case 'short':
+      case SummaryLength.SHORT:
         return '1-2 paragraphs, key points only';
-      case 'medium':
+      case SummaryLength.MEDIUM:
         return '3-5 paragraphs, comprehensive overview';
-      case 'long':
+      case SummaryLength.LONG:
         return 'Detailed summary with all major sections';
       case 'custom':
         return `Custom length: ${customLength} words`;
@@ -82,17 +82,6 @@ export function DocumentSummarizer({
     }
   };
 
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return 'text-green-600 bg-green-100';
-    if (confidence >= 0.6) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
-  };
-
-  const getConfidenceLabel = (confidence: number) => {
-    if (confidence >= 0.8) return 'High Confidence';
-    if (confidence >= 0.6) return 'Medium Confidence';
-    return 'Low Confidence';
-  };
 
   return (
     <div className="space-y-6">
@@ -128,7 +117,7 @@ export function DocumentSummarizer({
                 Summary Length
               </label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {(['short', 'medium', 'long'] as SummaryLength[]).map((length) => (
+                {([SummaryLength.SHORT, SummaryLength.MEDIUM, SummaryLength.LONG] as SummaryLength[]).map((length) => (
                   <button
                     key={length}
                     onClick={() => setSummaryLength(length)}

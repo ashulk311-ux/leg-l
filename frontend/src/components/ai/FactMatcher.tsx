@@ -16,7 +16,8 @@ import toast from 'react-hot-toast';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/Card';
-import { aiService, FactMatchingRequest } from '../../services/ai';
+import { aiService } from '../../services/ai';
+import { FactMatchingRequest } from '@shared/types';
 import { Document } from '@shared/types';
 
 interface FactMatcherProps {

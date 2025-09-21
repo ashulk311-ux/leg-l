@@ -14,10 +14,9 @@ import {
 import toast from 'react-hot-toast';
 
 import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/Card';
-import { aiService, QARequest } from '../../services/ai';
-import { Document } from '@shared/types';
+import { aiService } from '../../services/ai';
+import { Document, QARequest } from '@shared/types';
 
 interface DocumentQAProps {
   document?: Document;
@@ -64,7 +63,7 @@ export function DocumentQA({
         confidence: response.confidence,
         processingTime: response.processingTime,
         model: response.model,
-        relatedQuestions: response.relatedQuestions,
+        relatedQuestions: response.relatedQuestions || [],
       };
       
       setQaHistory(prev => [qaResponse, ...prev]);
@@ -95,6 +94,7 @@ export function DocumentQA({
       const request: QARequest = {
         question: question.trim(),
         documentIds: targetDocumentIds,
+        includeSources: true,
       };
 
       await qaMutation.mutateAsync(request);

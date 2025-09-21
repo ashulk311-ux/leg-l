@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 
-import { Document, DocumentDocument } from './schemas/document.schema';
+import { LegalDocument, DocumentDocument } from './schemas/document.schema';
 import { StorageService } from '../common/services/storage.service';
 import { 
   CreateDocumentDto, 
@@ -22,7 +22,7 @@ export class DocumentsService {
   private readonly logger = new Logger(DocumentsService.name);
 
   constructor(
-    @InjectModel(Document.name) private readonly documentModel: Model<DocumentDocument>,
+    @InjectModel(LegalDocument.name) private readonly documentModel: Model<DocumentDocument>,
     private readonly storageService: StorageService,
     @InjectQueue('document-processing') private readonly documentQueue: Queue,
   ) {}
@@ -31,7 +31,7 @@ export class DocumentsService {
     createDocumentDto: CreateDocumentDto,
     file: Express.Multer.File,
     userId: string,
-  ): Promise<Document> {
+  ): Promise<LegalDocument> {
     try {
       // Upload file to storage
       const uploadResult = await this.storageService.uploadFile(file, 'documents');
@@ -128,7 +128,7 @@ export class DocumentsService {
     ]);
 
     return {
-      documents,
+      documents: documents as any,
       total,
       page,
       limit,
@@ -136,7 +136,7 @@ export class DocumentsService {
     };
   }
 
-  async findOne(id: string, userId: string): Promise<Document> {
+  async findOne(id: string, userId: string): Promise<LegalDocument> {
     const document = await this.documentModel.findOne({
       _id: id,
       ownerId: userId,
@@ -149,7 +149,7 @@ export class DocumentsService {
     return document;
   }
 
-  async update(id: string, updateDocumentDto: UpdateDocumentDto, userId: string): Promise<Document> {
+  async update(id: string, updateDocumentDto: UpdateDocumentDto, userId: string): Promise<LegalDocument> {
     const document = await this.documentModel.findOneAndUpdate(
       { _id: id, ownerId: userId },
       { ...updateDocumentDto, updatedAt: new Date() },
@@ -189,7 +189,7 @@ export class DocumentsService {
     return this.storageService.getFileUrl(document.s3Key);
   }
 
-  async updateStatus(id: string, status: DocumentStatus, metadata?: any): Promise<Document> {
+  async updateStatus(id: string, status: DocumentStatus, metadata?: any): Promise<LegalDocument> {
     const updateData: any = { status, updatedAt: new Date() };
     
     if (metadata) {
@@ -300,7 +300,7 @@ export class DocumentsService {
     ]);
 
     return {
-      documents,
+      documents: documents as any,
       total,
       page,
       limit,

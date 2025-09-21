@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document as MongooseDocument } from 'mongoose';
 import { DocumentCategory, DocumentStatus, DocumentType } from '@legal-docs/shared';
 
-export type DocumentDocument = Document & Document;
+export type DocumentDocument = LegalDocument & MongooseDocument;
 
 @Schema({ timestamps: true })
-export class Document {
+export class LegalDocument {
   @Prop({ required: true })
   ownerId: string;
 
@@ -24,13 +24,13 @@ export class Document {
   @Prop({ required: true })
   s3Bucket: string;
 
-  @Prop({ required: true, enum: DocumentCategory })
+  @Prop({ type: String, required: true, enum: DocumentCategory })
   category: DocumentCategory;
 
-  @Prop({ required: true, enum: DocumentType })
+  @Prop({ type: String, required: true, enum: DocumentType })
   type: DocumentType;
 
-  @Prop({ required: true, enum: DocumentStatus, default: DocumentStatus.UPLOADED })
+  @Prop({ type: String, required: true, enum: DocumentStatus, default: DocumentStatus.UPLOADED })
   status: DocumentStatus;
 
   @Prop({
@@ -77,7 +77,7 @@ export class Document {
   updatedAt: Date;
 }
 
-export const DocumentSchema = SchemaFactory.createForClass(Document);
+export const DocumentSchema = SchemaFactory.createForClass(LegalDocument);
 
 // Indexes
 DocumentSchema.index({ ownerId: 1 });

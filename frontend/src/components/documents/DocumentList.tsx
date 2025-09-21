@@ -35,7 +35,7 @@ export function DocumentList({
 }: DocumentListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setLocalCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<'title' | 'uploadedAt' | 'processedAt' | 'size'>('uploadedAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   
@@ -53,7 +53,6 @@ export function DocumentList({
     documents, 
     setDocuments, 
     setTotalCount, 
-    setCurrentPage: setStorePage,
     setTotalPages,
     setFilters: setStoreFilters,
     setSearchQuery: setStoreSearchQuery,
@@ -77,7 +76,7 @@ export function DocumentList({
       
       setDocuments(response.documents);
       setTotalCount(response.total);
-      setCurrentPage(response.page);
+      setLocalCurrentPage(response.page);
       setTotalPages(response.totalPages);
       
       return response;
@@ -93,7 +92,7 @@ export function DocumentList({
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setCurrentPage(1);
+    setLocalCurrentPage(1);
   };
 
   const handleFilterChange = (key: keyof DocumentFilters, value: any) => {
@@ -101,7 +100,7 @@ export function DocumentList({
       ...prev,
       [key]: value,
     }));
-    setCurrentPage(1);
+    setLocalCurrentPage(1);
   };
 
   const clearFilters = () => {
@@ -115,7 +114,7 @@ export function DocumentList({
       isPublic: undefined,
     });
     setSearchQuery('');
-    setCurrentPage(1);
+    setLocalCurrentPage(1);
   };
 
   const handleDelete = async (documentId: string) => {
@@ -133,7 +132,7 @@ export function DocumentList({
 
   const handleDownload = async (document: Document) => {
     try {
-      await documentService.downloadDocument(document._id, document.filename);
+      await documentService.downloadDocument(document._id || '', document.filename);
       toast.success('Download started');
     } catch (error: any) {
       toast.error('Failed to download document');
@@ -391,21 +390,21 @@ export function DocumentList({
                       
                       <div className="flex items-center space-x-2">
                         <DocumentIcon className="h-4 w-4" />
-                        <span>{formatFileSize(document.size)}</span>
+                        <span>{formatFileSize(document.metadata?.size || 0)}</span>
                       </div>
                       
-                      {document.jurisdiction && (
+                      {document.metadata?.jurisdiction && (
                         <div className="flex items-center space-x-2">
                           <BuildingOfficeIcon className="h-4 w-4" />
-                          <span>{document.jurisdiction}</span>
+                          <span>{document.metadata?.jurisdiction}</span>
                         </div>
                       )}
                     </div>
 
                     {/* Tags */}
-                    {document.tags && document.tags.length > 0 && (
+                    {document.metadata?.tags && document.metadata.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1">
-                        {document.tags.slice(0, 3).map((tag, index) => (
+                        {document.metadata?.tags.slice(0, 3).map((tag, index) => (
                           <span
                             key={index}
                             className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
@@ -413,9 +412,9 @@ export function DocumentList({
                             {tag}
                           </span>
                         ))}
-                        {document.tags.length > 3 && (
+                        {document.metadata?.tags && document.metadata.tags.length > 3 && (
                           <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
-                            +{document.tags.length - 3}
+                            +{document.metadata?.tags.length - 3}
                           </span>
                         )}
                       </div>
@@ -442,7 +441,7 @@ export function DocumentList({
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDelete(document._id)}
+                            onClick={() => handleDelete(document._id || '')}
                             className="text-red-600 hover:text-red-700"
                           >
                             <TrashIcon className="h-4 w-4" />
@@ -462,7 +461,7 @@ export function DocumentList({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(currentPage - 1)}
+                onClick={() => setLocalCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1}
               >
                 Previous
@@ -476,7 +475,7 @@ export function DocumentList({
                       key={page}
                       variant={currentPage === page ? 'primary' : 'ghost'}
                       size="sm"
-                      onClick={() => setCurrentPage(page)}
+                      onClick={() => setLocalCurrentPage(page)}
                     >
                       {page}
                     </Button>
@@ -487,7 +486,7 @@ export function DocumentList({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(currentPage + 1)}
+                onClick={() => setLocalCurrentPage(currentPage + 1)}
                 disabled={currentPage === data.totalPages}
               >
                 Next

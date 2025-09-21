@@ -22,7 +22,7 @@ export class LlmController {
 
   @Post('generate')
   @ApiOperation({ summary: 'Generate LLM response' })
-  @ApiResponse({ status: 200, description: 'LLM response generated successfully', type: LLMResponse })
+  @ApiResponse({ status: 200, description: 'LLM response generated successfully' })
   @ApiResponse({ status: 400, description: 'Invalid request parameters' })
   async generateResponse(@Body() request: LLMRequest): Promise<LLMResponse> {
     return this.llmService.generateResponse(request);
@@ -30,7 +30,7 @@ export class LlmController {
 
   @Post('summarize')
   @ApiOperation({ summary: 'Summarize a document' })
-  @ApiResponse({ status: 200, description: 'Document summarized successfully', type: SummarizationResponse })
+  @ApiResponse({ status: 200, description: 'Document summarized successfully' })
   @ApiResponse({ status: 400, description: 'Invalid request parameters' })
   async summarize(@Body() request: SummarizationRequest): Promise<SummarizationResponse> {
     return this.llmService.summarizeDocument(request);
@@ -38,7 +38,7 @@ export class LlmController {
 
   @Post('qa')
   @ApiOperation({ summary: 'Answer questions about documents' })
-  @ApiResponse({ status: 200, description: 'Question answered successfully', type: QAResponse })
+  @ApiResponse({ status: 200, description: 'Question answered successfully' })
   @ApiResponse({ status: 400, description: 'Invalid request parameters' })
   async qa(@Body() request: QARequest): Promise<QAResponse> {
     return this.llmService.answerQuestion(request);
@@ -46,7 +46,7 @@ export class LlmController {
 
   @Post('match-facts')
   @ApiOperation({ summary: 'Match facts against documents' })
-  @ApiResponse({ status: 200, description: 'Facts matched successfully', type: FactMatchingResponse })
+  @ApiResponse({ status: 200, description: 'Facts matched successfully' })
   @ApiResponse({ status: 400, description: 'Invalid request parameters' })
   async matchFacts(@Body() request: FactMatchingRequest): Promise<FactMatchingResponse> {
     return this.llmService.matchFacts(request);

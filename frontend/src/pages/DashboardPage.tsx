@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Button } from '../components/ui/Button';
 import { useAuthStore } from '../stores/auth';
 
-export function DashboardPage() {
+function DashboardPage() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
@@ -139,3 +139,5 @@ export function DashboardPage() {
     </div>
   );
 }
+
+export default DashboardPage;

@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Button } from '../components/ui/Button';
 import { UserManagement } from '../components/admin/UserManagement';
 import { SystemAnalytics } from '../components/admin/SystemAnalytics';
 import { SystemConfiguration } from '../components/admin/SystemConfiguration';
 
-export function AdminPage() {
+function AdminPage() {
   const [activeTab, setActiveTab] = useState<'analytics' | 'users' | 'config'>('analytics');
 
   const tabs = [
@@ -50,3 +49,5 @@ export function AdminPage() {
     </div>
   );
 }
+
+export default AdminPage;

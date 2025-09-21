@@ -1,30 +1,31 @@
-import { cn } from '../../utils/cn';
-
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   text?: string;
 }
 
-const sizeClasses = {
-  sm: 'h-4 w-4',
-  md: 'h-6 w-6',
-  lg: 'h-8 w-8',
-  xl: 'h-12 w-12',
+const sizeStyles = {
+  sm: { height: '1rem', width: '1rem' },
+  md: { height: '1.5rem', width: '1.5rem' },
+  lg: { height: '2rem', width: '2rem' },
+  xl: { height: '3rem', width: '3rem' },
 };
 
 export function LoadingSpinner({ size = 'md', className, text }: LoadingSpinnerProps) {
   return (
-    <div className="flex flex-col items-center justify-center space-y-2">
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
       <div
-        className={cn(
-          'animate-spin rounded-full border-2 border-gray-300 border-t-primary-600',
-          sizeClasses[size],
-          className
-        )}
+        style={{
+          ...sizeStyles[size],
+          animation: 'spin 1s linear infinite',
+          borderRadius: '50%',
+          border: '2px solid #d1d5db',
+          borderTopColor: '#2563eb',
+        }}
+        className={className}
       />
       {text && (
-        <p className="text-sm text-gray-600 animate-pulse">{text}</p>
+        <p style={{ fontSize: '0.875rem', color: '#6b7280', animation: 'pulse 2s infinite' }}>{text}</p>
       )}
     </div>
   );
@@ -34,10 +35,15 @@ export function LoadingSpinner({ size = 'md', className, text }: LoadingSpinnerP
 export function InlineSpinner({ className }: { className?: string }) {
   return (
     <div
-      className={cn(
-        'animate-spin rounded-full border-2 border-white border-t-transparent h-4 w-4',
-        className
-      )}
+      style={{
+        animation: 'spin 1s linear infinite',
+        borderRadius: '50%',
+        border: '2px solid white',
+        borderTopColor: 'transparent',
+        height: '1rem',
+        width: '1rem',
+      }}
+      className={className}
     />
   );
 }
@@ -45,10 +51,10 @@ export function InlineSpinner({ className }: { className?: string }) {
 // Page loading spinner
 export function PageSpinner() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
         <LoadingSpinner size="xl" />
-        <p className="mt-4 text-lg text-gray-600">Loading...</p>
+        <p style={{ marginTop: '1rem', fontSize: '1.125rem', color: '#6b7280' }}>Loading...</p>
       </div>
     </div>
   );
@@ -57,14 +63,20 @@ export function PageSpinner() {
 // Card loading skeleton
 export function CardSkeleton() {
   return (
-    <div className="card animate-pulse">
-      <div className="card-body">
-        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-        <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
-        <div className="space-y-2">
-          <div className="h-3 bg-gray-200 rounded"></div>
-          <div className="h-3 bg-gray-200 rounded w-5/6"></div>
-          <div className="h-3 bg-gray-200 rounded w-4/6"></div>
+    <div style={{ 
+      backgroundColor: 'white', 
+      borderRadius: '0.75rem', 
+      boxShadow: '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+      border: '1px solid #e5e7eb',
+      animation: 'pulse 2s infinite'
+    }}>
+      <div style={{ padding: '1.5rem' }}>
+        <div style={{ height: '1rem', backgroundColor: '#e5e7eb', borderRadius: '0.25rem', width: '75%', marginBottom: '0.5rem' }}></div>
+        <div style={{ height: '0.75rem', backgroundColor: '#e5e7eb', borderRadius: '0.25rem', width: '50%', marginBottom: '1rem' }}></div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <div style={{ height: '0.75rem', backgroundColor: '#e5e7eb', borderRadius: '0.25rem' }}></div>
+          <div style={{ height: '0.75rem', backgroundColor: '#e5e7eb', borderRadius: '0.25rem', width: '83%' }}></div>
+          <div style={{ height: '0.75rem', backgroundColor: '#e5e7eb', borderRadius: '0.25rem', width: '67%' }}></div>
         </div>
       </div>
     </div>
@@ -74,14 +86,14 @@ export function CardSkeleton() {
 // Table loading skeleton
 export function TableSkeleton({ rows = 5 }: { rows?: number }) {
   return (
-    <div className="animate-pulse">
-      <div className="space-y-3">
+    <div style={{ animation: 'pulse 2s infinite' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {Array.from({ length: rows }).map((_, i) => (
-          <div key={i} className="flex space-x-4">
-            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+          <div key={i} style={{ display: 'flex', gap: '1rem' }}>
+            <div style={{ height: '1rem', backgroundColor: '#e5e7eb', borderRadius: '0.25rem', width: '25%' }}></div>
+            <div style={{ height: '1rem', backgroundColor: '#e5e7eb', borderRadius: '0.25rem', width: '33%' }}></div>
+            <div style={{ height: '1rem', backgroundColor: '#e5e7eb', borderRadius: '0.25rem', width: '17%' }}></div>
+            <div style={{ height: '1rem', backgroundColor: '#e5e7eb', borderRadius: '0.25rem', width: '25%' }}></div>
           </div>
         ))}
       </div>

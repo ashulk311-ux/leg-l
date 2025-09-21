@@ -36,11 +36,9 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User login' })
-  @ApiBody({ type: LoginDto })
   @ApiResponse({
     status: 200,
     description: 'Login successful',
-    type: AuthResponse,
   })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto): Promise<AuthResponse> {
@@ -49,11 +47,9 @@ export class AuthController {
 
   @Post('register')
   @ApiOperation({ summary: 'User registration' })
-  @ApiBody({ type: RegisterDto })
   @ApiResponse({
     status: 201,
     description: 'Registration successful',
-    type: AuthResponse,
   })
   @ApiResponse({ status: 409, description: 'User already exists' })
   async register(@Body() registerDto: RegisterDto): Promise<AuthResponse> {
@@ -63,11 +59,9 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh access token' })
-  @ApiBody({ type: RefreshTokenDto })
   @ApiResponse({
     status: 200,
     description: 'Token refreshed successfully',
-    type: AuthResponse,
   })
   @ApiResponse({ status: 401, description: 'Invalid refresh token' })
   async refreshToken(
@@ -90,7 +84,6 @@ export class AuthController {
   @Post('password-reset')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request password reset' })
-  @ApiBody({ type: PasswordResetDto })
   @ApiResponse({ status: 200, description: 'Password reset email sent' })
   async requestPasswordReset(
     @Body() passwordResetDto: PasswordResetDto,
@@ -102,7 +95,6 @@ export class AuthController {
   @Post('password-reset/confirm')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Confirm password reset' })
-  @ApiBody({ type: PasswordResetConfirmDto })
   @ApiResponse({ status: 200, description: 'Password reset successful' })
   @ApiResponse({ status: 400, description: 'Invalid or expired token' })
   async confirmPasswordReset(

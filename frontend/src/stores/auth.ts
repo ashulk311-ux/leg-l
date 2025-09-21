@@ -1,7 +1,17 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authService, AuthState } from '../services/auth';
-import { User, UserRole } from '@shared/types';
+// import { User, UserRole } from '@shared/types';
+
+// Temporary local types
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
+type UserRole = 'admin' | 'user' | 'guest';
 
 interface AuthStore extends AuthState {
   // Actions
@@ -27,7 +37,7 @@ export const useAuthStore = create<AuthStore>()(
       user: null,
       token: null,
       isAuthenticated: false,
-      isLoading: true,
+      isLoading: false,
 
       // Actions
       login: async (email: string, password: string) => {
@@ -49,7 +59,7 @@ export const useAuthStore = create<AuthStore>()(
       register: async (email: string, password: string, name: string, role?: UserRole) => {
         try {
           set({ isLoading: true });
-          const response = await authService.register({ email, password, name, role });
+          const response = await authService.register({ email, password, name, role: role as any });
           set({
             user: response.user,
             token: response.accessToken,
@@ -77,7 +87,7 @@ export const useAuthStore = create<AuthStore>()(
 
       updateProfile: async (userData: Partial<User>) => {
         try {
-          const updatedUser = await authService.updateProfile(userData);
+          const updatedUser = await authService.updateProfile(userData as any);
           set({ user: updatedUser });
         } catch (error) {
           throw error;
@@ -122,12 +132,12 @@ export const useAuthStore = create<AuthStore>()(
       // Getters
       isAdmin: () => {
         const { user } = get();
-        return user?.role === UserRole.ADMIN;
+        return user?.role === 'admin';
       },
 
       isUser: () => {
         const { user } = get();
-        return user?.role === UserRole.USER;
+        return user?.role === 'user';
       },
 
       hasRole: (role: UserRole) => {
@@ -147,11 +157,15 @@ export const useAuthStore = create<AuthStore>()(
 );
 
 // Initialize auth state from service
-authService.subscribe((authState) => {
-  useAuthStore.setState({
-    user: authState.user,
-    token: authState.token,
-    isAuthenticated: authState.isAuthenticated,
-    isLoading: authState.isLoading,
+try {
+  authService.subscribe((authState) => {
+    useAuthStore.setState({
+      user: authState.user,
+      token: authState.token,
+      isAuthenticated: authState.isAuthenticated,
+      isLoading: authState.isLoading,
+    });
   });
-});
+} catch (error) {
+  console.error('Failed to initialize auth store:', error);
+}

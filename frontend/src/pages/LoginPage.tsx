@@ -10,7 +10,6 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
 import { useAuthStore } from '../stores/auth';
-import { cn } from '../utils/cn';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -19,7 +18,7 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export function LoginPage() {
+function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -170,7 +169,7 @@ export function LoginPage() {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => toast.info('Google authentication coming soon!')}
+                  onClick={() => toast('Google authentication coming soon!')}
                 >
                   <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                     <path
@@ -196,7 +195,7 @@ export function LoginPage() {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => toast.info('Microsoft authentication coming soon!')}
+                  onClick={() => toast('Microsoft authentication coming soon!')}
                 >
                   <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                     <path fill="#f25022" d="M1 1h10v10H1z" />
@@ -227,3 +226,5 @@ export function LoginPage() {
     </div>
   );
 }
+
+export default LoginPage;

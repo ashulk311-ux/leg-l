@@ -5,10 +5,8 @@ import {
   DocumentTextIcon,
   UserIcon,
   CpuChipIcon,
-  ClockIcon,
   ArrowUpIcon,
-  ArrowDownIcon,
-  EyeIcon
+  ArrowDownIcon
 } from '@heroicons/react/24/outline';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/Card';
@@ -24,7 +22,7 @@ export function SystemAnalytics({ timeRange: initialTimeRange = '30d' }: SystemA
 
   const { data: analytics, isLoading, error } = useQuery({
     queryKey: ['admin-analytics', timeRange],
-    queryFn: () => adminService.getSystemAnalytics(timeRange),
+    queryFn: () => adminService.getSystemAnalytics(),
   });
 
   const timeRangeOptions = [

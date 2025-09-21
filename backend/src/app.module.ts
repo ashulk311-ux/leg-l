@@ -29,9 +29,11 @@ import { AppService } from './app.service';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
+        uri: configService.get<string>('MONGODB_URI', 'mongodb://localhost:27017/legal-docs'),
         useNewUrlParser: true,
         useUnifiedTopology: true,
+        retryWrites: true,
+        retryReads: true,
       }),
       inject: [ConfigService],
     }),
@@ -41,9 +43,9 @@ import { AppService } from './app.service';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         redis: {
-          host: configService.get<string>('REDIS_HOST', 'localhost'),
-          port: configService.get<number>('REDIS_PORT', 6379),
-          password: configService.get<string>('REDIS_PASSWORD'),
+          host: configService.get<string>('REDIS_HOST', 'redis-15829.crce179.ap-south-1-1.ec2.redns.redis-cloud.com'),
+          port: configService.get<number>('REDIS_PORT', 15829),
+          password: configService.get<string>('REDIS_PASSWORD', 'D3dMlhCYYTPsmiUOMpYh4EeOjVtCYtyZ'),
         },
       }),
       inject: [ConfigService],

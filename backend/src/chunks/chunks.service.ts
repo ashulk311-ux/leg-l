@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 
-import { Chunk, ChunkDocument } from './schemas/chunk.schema';
+import { DocumentChunk, ChunkDocument } from './schemas/chunk.schema';
 import { EmbeddingService } from '../common/services/embedding.service';
 import { VectorStoreService, VectorDocument } from '../common/services/vector-store.service';
 import { 
@@ -20,7 +20,7 @@ export class ChunksService {
   private readonly logger = new Logger(ChunksService.name);
 
   constructor(
-    @InjectModel(Chunk.name) private readonly chunkModel: Model<ChunkDocument>,
+    @InjectModel(DocumentChunk.name) private readonly chunkModel: Model<ChunkDocument>,
     private readonly configService: ConfigService,
     private readonly embeddingService: EmbeddingService,
     private readonly vectorStoreService: VectorStoreService,
@@ -69,7 +69,7 @@ export class ChunksService {
       });
 
       const savedChunk = await chunk.save();
-      chunks.push(savedChunk);
+      chunks.push(savedChunk as any);
       chunkIndex++;
     }
 
@@ -85,7 +85,7 @@ export class ChunksService {
       const embeddingRequests: EmbeddingRequest[] = chunks.map(chunk => ({
         text: chunk.chunkText,
         model: this.configService.get<string>('EMBEDDING_MODEL', EMBEDDING_MODELS.OPENAI_ADA_002),
-        chunkId: chunk._id?.toString(),
+        chunkId: (chunk as any)._id?.toString(),
       }));
 
       // Generate embeddings in batches
@@ -126,17 +126,17 @@ export class ChunksService {
         const embeddingRequest: EmbeddingRequest = {
           text: chunk.chunkText,
           model: this.configService.get<string>('EMBEDDING_MODEL', EMBEDDING_MODELS.OPENAI_ADA_002),
-          chunkId: chunk._id?.toString(),
+          chunkId: (chunk as any)._id?.toString(),
         };
 
         const embeddingResponse = await this.embeddingService.generateEmbedding(embeddingRequest);
 
         // Create vector document
         const vectorDoc: VectorDocument = {
-          id: `vector_${chunk._id}_${Date.now()}`,
+          id: `vector_${(chunk as any)._id}_${Date.now()}`,
           vector: embeddingResponse.embedding,
           metadata: {
-            chunkId: chunk._id?.toString() || '',
+            chunkId: (chunk as any)._id?.toString() || '',
             documentId: chunk.documentId,
             text: chunk.chunkText,
             title: 'Document Title', // TODO: Get from document
@@ -150,7 +150,7 @@ export class ChunksService {
         vectorDocuments.push(vectorDoc);
 
         // Update chunk with vector ID
-        await this.chunkModel.findByIdAndUpdate(chunk._id, {
+        await this.chunkModel.findByIdAndUpdate((chunk as any)._id, {
           vectorId: vectorDoc.id,
         }).exec();
       }
@@ -166,11 +166,11 @@ export class ChunksService {
   }
 
   async findByDocumentId(documentId: string): Promise<Chunk[]> {
-    return this.chunkModel.find({ documentId }).sort({ 'metadata.chunkIndex': 1 }).exec();
+    return this.chunkModel.find({ documentId }).sort({ 'metadata.chunkIndex': 1 }).exec() as any;
   }
 
   async findById(id: string): Promise<Chunk | null> {
-    return this.chunkModel.findById(id).exec();
+    return this.chunkModel.findById(id).exec() as any;
   }
 
   async deleteByDocumentId(documentId: string): Promise<void> {

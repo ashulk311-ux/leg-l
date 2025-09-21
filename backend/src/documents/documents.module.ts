@@ -4,14 +4,14 @@ import { BullModule } from '@nestjs/bull';
 
 import { DocumentsController } from './documents.controller';
 import { DocumentsService } from './documents.service';
-import { Document, DocumentSchema } from './schemas/document.schema';
+import { LegalDocument, DocumentSchema } from './schemas/document.schema';
 import { StorageService } from '../common/services/storage.service';
 import { DocumentProcessor } from './processors/document.processor';
 import { ChunksModule } from '../chunks/chunks.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Document.name, schema: DocumentSchema }]),
+      MongooseModule.forFeature([{ name: LegalDocument.name, schema: DocumentSchema }]),
     BullModule.registerQueue({
       name: 'document-processing',
     }),

@@ -42,8 +42,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         className={cn(
           baseClasses,
-          variants[variant],
-          sizes[size],
+          !className?.includes('bg-') && variants[variant],
+          !className?.includes('px-') && sizes[size],
           className
         )}
         ref={ref}

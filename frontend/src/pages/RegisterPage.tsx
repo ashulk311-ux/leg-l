@@ -26,7 +26,7 @@ const registerSchema = z.object({
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-export function RegisterPage() {
+function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -297,7 +297,7 @@ export function RegisterPage() {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => toast.info('Google authentication coming soon!')}
+                  onClick={() => toast('Google authentication coming soon!')}
                 >
                   <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                     <path
@@ -323,7 +323,7 @@ export function RegisterPage() {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => toast.info('Microsoft authentication coming soon!')}
+                  onClick={() => toast('Microsoft authentication coming soon!')}
                 >
                   <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                     <path fill="#f25022" d="M1 1h10v10H1z" />
@@ -354,3 +354,5 @@ export function RegisterPage() {
     </div>
   );
 }
+
+export default RegisterPage;

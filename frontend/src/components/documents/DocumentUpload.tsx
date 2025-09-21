@@ -1,11 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
-  CloudArrowUpIcon, 
-  DocumentIcon, 
+  CloudArrowUpIcon,
   XMarkIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon
@@ -17,11 +15,12 @@ import { Input } from '../ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/Card';
 import { documentService, DocumentUploadProgress } from '../../services/documents';
 import { DocumentCategory } from '@shared/types';
-import { cn, formatFileSize } from '../../utils/cn';
+import { cn } from '../../utils/cn';
+import { formatFileSize } from '../../utils/format';
 
 const uploadSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  category: z.nativeEnum(DocumentCategory, { required_error: 'Category is required' }),
+  category: z.nativeEnum(DocumentCategory, { message: 'Category is required' }),
   tags: z.string().optional(),
   jurisdiction: z.string().optional(),
   court: z.string().optional(),
@@ -49,9 +48,7 @@ export function DocumentUpload() {
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
   } = useForm<UploadFormData>({
-    resolver: zodResolver(uploadSchema),
     defaultValues: {
       isPublic: false,
     },
@@ -99,8 +96,26 @@ export function DocumentUpload() {
       const uploadPromises = uploadedFiles.map(async (uploadedFile) => {
         try {
           const documentData = {
-            ...data,
-            tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
+            title: data.title,
+            category: data.category,
+            isPublic: data.isPublic,
+            status: 'pending' as any, // Added missing status field
+            ownerId: '', // Added missing ownerId field (will be set by backend)
+            filename: uploadedFile.file.name,
+            originalFilename: uploadedFile.file.name,
+            s3Key: '', // Will be set by the backend
+            s3Bucket: '', // Will be set by the backend
+            type: uploadedFile.file.type.split('/')[1] as any, // Extract file extension
+            metadata: {
+              size: uploadedFile.file.size,
+              mimeType: uploadedFile.file.type,
+              tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
+              ocrUsed: false, // Added missing ocrUsed field
+              jurisdiction: data.jurisdiction,
+              court: data.court,
+              year: data.year,
+              caseNumber: data.caseNumber,
+            },
           };
 
           const onProgress = (progress: DocumentUploadProgress) => {

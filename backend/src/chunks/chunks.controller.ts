@@ -13,7 +13,7 @@ export class ChunksController {
 
   @Get('document/:documentId')
   @ApiOperation({ summary: 'Get chunks for a document' })
-  @ApiResponse({ status: 200, description: 'Chunks retrieved successfully', type: [Chunk] })
+  @ApiResponse({ status: 200, description: 'Chunks retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
   async getDocumentChunks(@Param('documentId') documentId: string, @Request() req: any): Promise<Chunk[]> {
     // TODO: Add authorization check to ensure user owns the document
@@ -22,7 +22,7 @@ export class ChunksController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get chunk by ID' })
-  @ApiResponse({ status: 200, description: 'Chunk retrieved successfully', type: Chunk })
+  @ApiResponse({ status: 200, description: 'Chunk retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Chunk not found' })
   async getChunk(@Param('id') id: string): Promise<Chunk | null> {
     return this.chunksService.findById(id);

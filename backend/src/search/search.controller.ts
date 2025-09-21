@@ -13,7 +13,7 @@ export class SearchController {
 
   @Post('similarity')
   @ApiOperation({ summary: 'Perform similarity search' })
-  @ApiResponse({ status: 200, description: 'Search results retrieved', type: VectorSearchResponse })
+  @ApiResponse({ status: 200, description: 'Search results retrieved' })
   @ApiResponse({ status: 400, description: 'Invalid search parameters' })
   async similaritySearch(@Body() searchDto: VectorSearchDto): Promise<VectorSearchResponse> {
     return this.searchService.similaritySearch(searchDto);

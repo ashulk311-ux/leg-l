@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/auth';
 import { LoadingSpinner } from './ui/LoadingSpinner';
+import Layout from './Layout';
 
 // Lazy load pages for better performance
 import { lazy, Suspense } from 'react';
@@ -82,93 +83,114 @@ export function AppRouter() {
     <Suspense fallback={<PageLoading />}>
       <Routes>
         {/* Public routes */}
-        <Route 
-          path="/" 
-          element={
-            <PublicRoute>
-              <LandingPage />
-            </PublicRoute>
-          } 
+        <Route
+          path="/"
+          element={<LandingPage />}
         />
-        <Route 
-          path="/login" 
+        <Route
+          path="/login"
           element={
             <PublicRoute>
-              <LoginPage />
+              <Layout>
+                <LoginPage />
+              </Layout>
             </PublicRoute>
-          } 
+          }
         />
-        <Route 
-          path="/register" 
+        <Route
+          path="/register"
           element={
             <PublicRoute>
-              <RegisterPage />
+              <Layout>
+                <RegisterPage />
+              </Layout>
             </PublicRoute>
-          } 
+          }
         />
 
         {/* Protected routes */}
-        <Route 
-          path="/dashboard" 
+        <Route
+          path="/dashboard"
           element={
             <ProtectedRoute>
-              <DashboardPage />
+              <Layout>
+                <DashboardPage />
+              </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/documents" 
+        <Route
+          path="/documents"
           element={
             <ProtectedRoute>
-              <DocumentsPage />
+              <Layout>
+                <DocumentsPage />
+              </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/documents/:id" 
+        <Route
+          path="/documents/:id"
           element={
             <ProtectedRoute>
-              <DocumentViewerPage />
+              <Layout>
+                <DocumentViewerPage />
+              </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/search" 
+        <Route
+          path="/search"
           element={
             <ProtectedRoute>
-              <SearchPage />
+              <Layout>
+                <SearchPage />
+              </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/ai" 
+        <Route
+          path="/ai"
           element={
             <ProtectedRoute>
-              <AIPage />
+              <Layout>
+                <AIPage />
+              </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/profile" 
+        <Route
+          path="/profile"
           element={
             <ProtectedRoute>
-              <ProfilePage />
+              <Layout>
+                <ProfilePage />
+              </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
 
         {/* Admin routes */}
-        <Route 
-          path="/admin" 
+        <Route
+          path="/admin"
           element={
             <ProtectedRoute requireAdmin>
-              <AdminPage />
+              <Layout>
+                <AdminPage />
+              </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
 
         {/* Catch all route */}
-        <Route path="*" element={<NotFoundPage />} />
+        <Route 
+          path="*" 
+          element={
+            <Layout>
+              <NotFoundPage />
+            </Layout>
+          } 
+        />
       </Routes>
     </Suspense>
   );

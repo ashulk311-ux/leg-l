@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document as MongooseDocument } from 'mongoose';
 import { UserRole, UserStatus } from '@legal-docs/shared';
 
-export type UserDocument = User & Document;
+export type UserDocument = UserEntity & MongooseDocument;
 
 @Schema({ timestamps: true })
-export class User {
+export class UserEntity {
   @Prop({ required: true, unique: true, lowercase: true })
   email: string;
 
@@ -15,10 +15,10 @@ export class User {
   @Prop({ required: true })
   passwordHash: string;
 
-  @Prop({ required: true, enum: UserRole, default: UserRole.USER })
+  @Prop({ type: String, required: true, enum: UserRole, default: UserRole.USER })
   role: UserRole;
 
-  @Prop({ required: true, enum: UserStatus, default: UserStatus.ACTIVE })
+  @Prop({ type: String, required: true, enum: UserStatus, default: UserStatus.ACTIVE })
   status: UserStatus;
 
   @Prop({
@@ -74,7 +74,7 @@ export class User {
   updatedAt: Date;
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export const UserSchema = SchemaFactory.createForClass(UserEntity);
 
 // Indexes
 UserSchema.index({ email: 1 });

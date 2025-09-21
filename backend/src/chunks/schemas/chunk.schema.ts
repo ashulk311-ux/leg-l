@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document as MongooseDocument } from 'mongoose';
 
-export type ChunkDocument = Chunk & Document;
+export type ChunkDocument = DocumentChunk & MongooseDocument;
 
 @Schema({ timestamps: true })
-export class Chunk {
+export class DocumentChunk {
   @Prop({ required: true })
   documentId: string;
 
@@ -58,7 +58,7 @@ export class Chunk {
   updatedAt: Date;
 }
 
-export const ChunkSchema = SchemaFactory.createForClass(Chunk);
+export const ChunkSchema = SchemaFactory.createForClass(DocumentChunk);
 
 // Indexes
 ChunkSchema.index({ documentId: 1 });

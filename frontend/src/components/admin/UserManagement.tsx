@@ -5,20 +5,17 @@ import {
   UserPlusIcon,
   PencilIcon,
   TrashIcon,
-  ShieldCheckIcon,
-  ShieldExclamationIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
-  EyeIcon,
-  EyeSlashIcon
+  EyeIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/Card';
-import { userService } from '../../services/users';
-import { User, UserRole } from '@shared/types';
+import { usersService, User, UpdateUserData } from '../../services/users';
+import { UserRole } from '@shared/types';
 import { formatDate } from '../../utils/format';
 import { cn } from '../../utils/cn';
 
@@ -31,7 +28,6 @@ export function UserManagement({ onUserSelect }: UserManagementProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole | 'all'>('all');
   const [showInactive, setShowInactive] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -43,18 +39,17 @@ export function UserManagement({ onUserSelect }: UserManagementProps) {
       if (selectedRole !== 'all') params.append('role', selectedRole);
       if (showInactive) params.append('includeInactive', 'true');
       
-      return await userService.getUsers(params.toString());
+      return await usersService.getUsers();
     },
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: async ({ userId, updates }: { userId: string; updates: Partial<User> }) => {
-      return await userService.updateUser(userId, updates);
+    mutationFn: async ({ userId, updates }: { userId: string; updates: UpdateUserData }) => {
+      return await usersService.updateUser(userId, updates);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       toast.success('User updated successfully');
-      setEditingUser(null);
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to update user');
@@ -63,7 +58,7 @@ export function UserManagement({ onUserSelect }: UserManagementProps) {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
-      return await userService.deleteUser(userId);
+      return await usersService.deleteUser(userId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
@@ -76,21 +71,21 @@ export function UserManagement({ onUserSelect }: UserManagementProps) {
 
   const handleRoleChange = async (user: User, newRole: UserRole) => {
     await updateUserMutation.mutateAsync({
-      userId: user._id,
+      userId: user.id || '',
       updates: { role: newRole },
     });
   };
 
   const handleStatusToggle = async (user: User) => {
     await updateUserMutation.mutateAsync({
-      userId: user._id,
+      userId: user.id || '',
       updates: { isActive: !user.isActive },
     });
   };
 
   const handleDeleteUser = async (user: User) => {
     if (window.confirm(`Are you sure you want to delete user "${user.name}"? This action cannot be undone.`)) {
-      await deleteUserMutation.mutateAsync(user._id);
+      await deleteUserMutation.mutateAsync(user.id);
     }
   };
 
@@ -255,7 +250,7 @@ export function UserManagement({ onUserSelect }: UserManagementProps) {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {users.map((user) => (
-                    <tr key={user._id} className="hover:bg-gray-50">
+                    <tr key={user.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0">
@@ -312,7 +307,7 @@ export function UserManagement({ onUserSelect }: UserManagementProps) {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setEditingUser(user)}
+                            onClick={() => {}}
                           >
                             <PencilIcon className="h-4 w-4" />
                           </Button>

@@ -1,155 +1,37 @@
 import { Link } from 'react-router-dom';
-import { 
-  DocumentTextIcon,
-  MagnifyingGlassIcon,
-  CpuChipIcon,
-  ShieldCheckIcon,
-  CloudIcon,
-  UserGroupIcon,
-  ArrowRightIcon,
-  CheckIcon
-} from '@heroicons/react/24/outline';
 
-import { Button } from '../components/ui/Button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
-
-const features = [
-  {
-    name: 'AI-Powered Search',
-    description: 'Find relevant legal documents instantly using semantic search powered by advanced AI.',
-    icon: MagnifyingGlassIcon,
-  },
-  {
-    name: 'Smart Summarization',
-    description: 'Get intelligent summaries of complex legal documents in seconds.',
-    icon: CpuChipIcon,
-  },
-  {
-    name: 'Secure Storage',
-    description: 'Your documents are encrypted and stored securely with enterprise-grade security.',
-    icon: ShieldCheckIcon,
-  },
-  {
-    name: 'Cloud-Based',
-    description: 'Access your documents from anywhere with our cloud-based platform.',
-    icon: CloudIcon,
-  },
-  {
-    name: 'Collaboration',
-    description: 'Share documents and collaborate with your team seamlessly.',
-    icon: UserGroupIcon,
-  },
-  {
-    name: 'Document Management',
-    description: 'Organize, categorize, and manage your legal documents efficiently.',
-    icon: DocumentTextIcon,
-  },
-];
-
-const testimonials = [
-  {
-    name: 'Sarah Johnson',
-    role: 'Senior Legal Counsel',
-    company: 'TechCorp Inc.',
-    content: 'This platform has revolutionized how we manage our legal documents. The AI search is incredibly accurate.',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80',
-  },
-  {
-    name: 'Michael Chen',
-    role: 'Partner',
-    company: 'Chen & Associates',
-    content: 'The document summarization feature saves us hours of work. Highly recommended for any law firm.',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-  },
-  {
-    name: 'Emily Rodriguez',
-    role: 'Legal Director',
-    company: 'Global Enterprises',
-    content: 'The security and compliance features give us peace of mind. Our sensitive documents are in safe hands.',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-  },
-];
-
-const pricingPlans = [
-  {
-    name: 'Professional',
-    price: '$29',
-    period: '/month',
-    description: 'Perfect for individual legal professionals',
-    features: [
-      'Up to 1,000 documents',
-      'AI-powered search',
-      'Document summarization',
-      'Basic collaboration',
-      'Email support',
-    ],
-    cta: 'Start Free Trial',
-    popular: false,
-  },
-  {
-    name: 'Team',
-    price: '$99',
-    period: '/month',
-    description: 'Ideal for small to medium law firms',
-    features: [
-      'Up to 10,000 documents',
-      'Advanced AI features',
-      'Team collaboration',
-      'Priority support',
-      'Custom integrations',
-    ],
-    cta: 'Start Free Trial',
-    popular: true,
-  },
-  {
-    name: 'Enterprise',
-    price: 'Custom',
-    period: '',
-    description: 'For large organizations with complex needs',
-    features: [
-      'Unlimited documents',
-      'Full AI suite',
-      'Advanced security',
-      'Dedicated support',
-      'Custom deployment',
-    ],
-    cta: 'Contact Sales',
-    popular: false,
-  },
-];
-
-export function LandingPage() {
+function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="landing-hero">
+      {/* Floating Background Elements */}
+      <div className="floating-element"></div>
+      <div className="floating-element"></div>
+      <div className="floating-element"></div>
+
       {/* Navigation */}
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 flex items-center">
-                <DocumentTextIcon className="h-8 w-8 text-primary-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900">LegalDocs</span>
+      <nav className="landing-nav shadow-lg">
+        <div className="container">
+          <div className="flex justify-between items-center" style={{ height: '5rem' }}>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-lg">⚖️</span>
               </div>
+              <span className="text-3xl font-black gradient-text">
+                LegalDocs
+              </span>
             </div>
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-4">
-                <Link to="#features" className="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                  Features
-                </Link>
-                <Link to="#pricing" className="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                  Pricing
-                </Link>
-                <Link to="#testimonials" className="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                  Testimonials
-                </Link>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link to="/login">
-                <Button variant="ghost">Sign In</Button>
+            <div className="flex items-center space-x-6">
+              <Link 
+                to="/login" 
+                className="text-gray-700 hover:text-blue-600 font-semibold transition-all duration-300 hover:-translate-y-1"
+              >
+                Sign In
               </Link>
-              <Link to="/register">
-                <Button>Get Started</Button>
+              <Link 
+                to="/register" 
+                className="btn btn-primary text-lg px-6 py-3"
+              >
+                Get Started Free
               </Link>
             </div>
           </div>
@@ -157,221 +39,287 @@ export function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-primary-50 to-secondary-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              AI-Powered Legal
-              <span className="text-primary-600"> Document Management</span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Transform your legal practice with intelligent document search, summarization, and management. 
-              Find what you need in seconds, not hours.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/register">
-                <Button size="lg" className="w-full sm:w-auto">
-                  Start Free Trial
-                  <ArrowRightIcon className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                Watch Demo
-              </Button>
+      <div className="pt-24 pb-20 px-4 relative">
+        <div className="container text-center">
+          {/* Badge */}
+          <div className="landing-badge inline-flex items-center px-6 py-3 rounded-full text-blue-700 text-lg font-bold mb-8 animate-fade-in">
+            ✨ LegalTech Reimagined • Trusted by 10,000+ Lawyers
+          </div>
+
+          {/* Main Heading */}
+          <h1 className="text-6xl md:text-8xl font-black text-gray-900 mb-8 leading-tight animate-slide-up">
+            Transform Your
+            <span className="block landing-title mt-4">
+              Legal Practice
+            </span>
+            with AI
+          </h1>
+
+          {/* Subheading */}
+          <p className="text-2xl md:text-3xl text-gray-600 mb-16 leading-relaxed animate-fade-in" style={{ maxWidth: '60rem', margin: '0 auto 4rem' }}>
+            The most advanced AI-powered legal document management platform. 
+            <span className="font-semibold text-blue-600"> Save 40+ hours per week</span> with intelligent automation.
+          </p>
+          
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-20 animate-slide-up">
+            <Link 
+              to="/register"
+              className="btn btn-primary text-xl font-bold px-10 py-5 rounded-2xl shadow-2xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 animate-glow"
+            >
+              Start Free Trial →
+            </Link>
+            <Link 
+              to="/login"
+              className="btn btn-outline text-xl font-bold px-10 py-5 rounded-2xl transition-all duration-500 hover:-translate-y-2"
+            >
+              Watch Demo
+            </Link>
+          </div>
+
+          {/* Trust Indicators */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 animate-fade-in" style={{ maxWidth: '60rem', margin: '0 auto' }}>
+            <div className="text-center p-6 glass rounded-2xl">
+              <div className="text-3xl font-black text-gray-900 mb-2">10,000+</div>
+              <div className="text-gray-600 font-semibold">Active Lawyers</div>
             </div>
-            <p className="text-sm text-gray-500 mt-4">
-              No credit card required • 14-day free trial • Cancel anytime
-            </p>
+            <div className="text-center p-6 glass rounded-2xl">
+              <div className="text-3xl font-black text-gray-900 mb-2">1M+</div>
+              <div className="text-gray-600 font-semibold">Documents Processed</div>
+            </div>
+            <div className="text-center p-6 glass rounded-2xl">
+              <div className="text-3xl font-black text-gray-900 mb-2">99.9%</div>
+              <div className="text-gray-600 font-semibold">Uptime SLA</div>
+            </div>
+            <div className="text-center p-6 glass rounded-2xl">
+              <div className="text-3xl font-black text-gray-900 mb-2">50+</div>
+              <div className="text-gray-600 font-semibold">Countries</div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Features Section */}
-      <div id="features" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Everything you need to manage legal documents
+      <div className="py-24 bg-white relative">
+        <div className="container">
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center px-6 py-3 rounded-full bg-purple-100 text-purple-700 text-lg font-bold mb-6">
+              ⚡ Powerful AI Features
+            </div>
+            <h2 className="text-5xl md:text-7xl font-black text-gray-900 mb-8">
+              Everything you need to
+              <span className="block landing-title mt-4">
+                revolutionize your practice
+              </span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Our platform combines cutting-edge AI with intuitive design to streamline your legal workflow.
+            <p className="text-2xl text-gray-600" style={{ maxWidth: '50rem', margin: '0 auto' }}>
+              Our platform combines cutting-edge AI with intuitive design to transform how you work.
             </p>
           </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature) => (
-              <Card key={feature.name} className="text-center">
-                <CardHeader>
-                  <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary-100 mb-4">
-                    <feature.icon className="h-6 w-6 text-primary-600" />
-                  </div>
-                  <CardTitle>{feature.name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>{feature.description}</CardDescription>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Testimonials Section */}
-      <div id="testimonials" className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Trusted by legal professionals worldwide
-            </h2>
-            <p className="text-xl text-gray-600">
-              See what our customers have to say about their experience.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial) => (
-              <Card key={testimonial.name}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center mb-4">
-                    <img
-                      src={testimonial.avatar}
-                      alt={testimonial.name}
-                      className="h-12 w-12 rounded-full"
-                    />
-                    <div className="ml-4">
-                      <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
-                      <p className="text-sm text-gray-600">{testimonial.role}</p>
-                      <p className="text-sm text-gray-500">{testimonial.company}</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-700">"{testimonial.content}"</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Pricing Section */}
-      <div id="pricing" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Simple, transparent pricing
-            </h2>
-            <p className="text-xl text-gray-600">
-              Choose the plan that fits your needs. All plans include a 14-day free trial.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {pricingPlans.map((plan) => (
-              <Card key={plan.name} className={plan.popular ? 'ring-2 ring-primary-500' : ''}>
-                {plan.popular && (
-                  <div className="bg-primary-600 text-white text-center py-2 text-sm font-medium">
-                    Most Popular
-                  </div>
-                )}
-                <CardHeader className="text-center">
-                  <CardTitle>{plan.name}</CardTitle>
-                  <div className="mt-4">
-                    <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
-                    <span className="text-gray-600">{plan.period}</span>
-                  </div>
-                  <CardDescription>{plan.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3 mb-6">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center">
-                        <CheckIcon className="h-5 w-5 text-green-500 mr-3" />
-                        <span className="text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Button 
-                    className="w-full" 
-                    variant={plan.popular ? 'primary' : 'outline'}
-                  >
-                    {plan.cta}
-                  </Button>
-                </CardContent>
-              </Card>
+            {[
+              {
+                icon: '🔍',
+                name: 'AI-Powered Search',
+                description: 'Find relevant information instantly across all your documents with natural language queries.',
+                color: 'from-blue-500 to-blue-600',
+                stats: '95% accuracy'
+              },
+              {
+                icon: '📄',
+                name: 'Smart Summarization',
+                description: 'Quickly grasp the essence of lengthy legal texts with AI-generated summaries.',
+                color: 'from-green-500 to-emerald-600',
+                stats: '10x faster'
+              },
+              {
+                icon: '🔒',
+                name: 'Enterprise Security',
+                description: 'Bank-level encryption and compliance with SOC 2, GDPR, and HIPAA standards.',
+                color: 'from-purple-500 to-indigo-600',
+                stats: '99.9% secure'
+              },
+              {
+                icon: '⭐',
+                name: 'Fact Matching',
+                description: 'Verify facts and identify discrepancies automatically across documents.',
+                color: 'from-pink-500 to-red-600',
+                stats: '99% precision'
+              },
+              {
+                icon: '👥',
+                name: 'Team Collaboration',
+                description: 'Share documents and collaborate seamlessly with your entire legal team.',
+                color: 'from-orange-500 to-red-600',
+                stats: 'Unlimited users'
+              },
+              {
+                icon: '⚡',
+                name: 'Workflow Automation',
+                description: 'Automate repetitive tasks and focus on what matters most.',
+                color: 'from-yellow-500 to-orange-600',
+                stats: '40h saved/week'
+              },
+            ].map((feature, index) => (
+              <div 
+                key={index} 
+                className="landing-feature-card rounded-3xl p-8 interactive-card"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className={`inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r ${feature.color} mb-6 hover:scale-125 transition-transform duration-300 shadow-lg`}>
+                  <span className="text-3xl">{feature.icon}</span>
+                </div>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    {feature.name}
+                  </h3>
+                  <span className="text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                    {feature.stats}
+                  </span>
+                </div>
+                <p className="text-gray-600 text-lg leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
             ))}
           </div>
         </div>
       </div>
 
       {/* CTA Section */}
-      <div className="bg-primary-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Ready to transform your legal practice?
-            </h2>
-            <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-              Join thousands of legal professionals who trust LegalDocs to manage their documents.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/register">
-                <Button size="lg" variant="secondary" className="w-full sm:w-auto">
-                  Start Free Trial
-                  <ArrowRightIcon className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto text-white border-white hover:bg-white hover:text-primary-600">
-                Contact Sales
-              </Button>
+      <div className="landing-cta py-24 relative">
+        <div className="container text-center relative z-10">
+          <h2 className="text-5xl md:text-7xl font-black text-white mb-8">
+            Ready to transform your
+            <span className="block mt-4">legal practice?</span>
+          </h2>
+          <p className="text-2xl text-blue-100 mb-16" style={{ maxWidth: '40rem', margin: '0 auto 4rem' }}>
+            Join thousands of legal professionals who trust LegalDocs to streamline their workflow.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <Link 
+              to="/register"
+              className="btn btn-white text-2xl font-bold px-12 py-6 rounded-2xl shadow-2xl hover:shadow-2xl transition-all duration-500 hover:scale-105"
+            >
+              Start Free Trial ✨
+            </Link>
+            <Link 
+              to="/login"
+              className="btn btn-ghost text-2xl font-bold px-12 py-6 rounded-2xl transition-all duration-500"
+              style={{ border: '3px solid rgba(255, 255, 255, 0.3)', color: 'white' }}
+            >
+              Schedule Demo
+            </Link>
+          </div>
+
+          {/* Social Proof */}
+          <div className="mt-16">
+            <p className="text-blue-200 text-lg mb-8">Trusted by leading law firms worldwide</p>
+            <div className="flex justify-center items-center space-x-12 opacity-60">
+              <div className="text-white font-bold text-xl">Baker McKenzie</div>
+              <div className="text-white font-bold text-xl">Latham & Watkins</div>
+              <div className="text-white font-bold text-xl">Skadden</div>
+              <div className="text-white font-bold text-xl">Kirkland & Ellis</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center mb-4">
-                <DocumentTextIcon className="h-8 w-8 text-primary-600" />
-                <span className="ml-2 text-xl font-bold text-white">LegalDocs</span>
+      <footer className="landing-footer py-20">
+        <div className="container">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+            {/* Brand */}
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-xl">⚖️</span>
+                </div>
+                <span className="text-3xl font-black text-white">
+                  LegalDocs
+                </span>
               </div>
-              <p className="text-gray-400">
-                AI-powered legal document management for the modern legal professional.
+              
+              <p className="text-gray-300 text-xl mb-8 leading-relaxed">
+                The future of legal document management. AI-powered, secure, and designed for modern legal professionals.
               </p>
+              
+              <div className="flex space-x-4">
+                <div className="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center hover:bg-gray-600 transition-colors cursor-pointer">
+                  <span className="text-white">📧</span>
+                </div>
+                <div className="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center hover:bg-gray-600 transition-colors cursor-pointer">
+                  <span className="text-white">🐦</span>
+                </div>
+                <div className="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center hover:bg-gray-600 transition-colors cursor-pointer">
+                  <span className="text-white">💼</span>
+                </div>
+              </div>
             </div>
+
+            {/* Quick Links */}
             <div>
-              <h3 className="text-white font-semibold mb-4">Product</h3>
-              <ul className="space-y-2">
-                <li><Link to="#" className="text-gray-400 hover:text-white">Features</Link></li>
-                <li><Link to="#" className="text-gray-400 hover:text-white">Pricing</Link></li>
-                <li><Link to="#" className="text-gray-400 hover:text-white">Security</Link></li>
-                <li><Link to="#" className="text-gray-400 hover:text-white">Integrations</Link></li>
-              </ul>
+              <h3 className="text-xl font-bold text-white mb-6">Product</h3>
+              <div className="space-y-4">
+                <Link to="/features" className="block text-gray-400 hover:text-white transition-colors">
+                  Features
+                </Link>
+                <Link to="/pricing" className="block text-gray-400 hover:text-white transition-colors">
+                  Pricing
+                </Link>
+                <Link to="/security" className="block text-gray-400 hover:text-white transition-colors">
+                  Security
+                </Link>
+                <Link to="/integrations" className="block text-gray-400 hover:text-white transition-colors">
+                  Integrations
+                </Link>
+              </div>
             </div>
+
+            {/* Company */}
             <div>
-              <h3 className="text-white font-semibold mb-4">Company</h3>
-              <ul className="space-y-2">
-                <li><Link to="#" className="text-gray-400 hover:text-white">About</Link></li>
-                <li><Link to="#" className="text-gray-400 hover:text-white">Blog</Link></li>
-                <li><Link to="#" className="text-gray-400 hover:text-white">Careers</Link></li>
-                <li><Link to="#" className="text-gray-400 hover:text-white">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-4">Support</h3>
-              <ul className="space-y-2">
-                <li><Link to="#" className="text-gray-400 hover:text-white">Help Center</Link></li>
-                <li><Link to="#" className="text-gray-400 hover:text-white">Documentation</Link></li>
-                <li><Link to="#" className="text-gray-400 hover:text-white">Status</Link></li>
-                <li><Link to="#" className="text-gray-400 hover:text-white">Privacy</Link></li>
-              </ul>
+              <h3 className="text-xl font-bold text-white mb-6">Company</h3>
+              <div className="space-y-4">
+                <Link to="/about" className="block text-gray-400 hover:text-white transition-colors">
+                  About Us
+                </Link>
+                <Link to="/careers" className="block text-gray-400 hover:text-white transition-colors">
+                  Careers
+                </Link>
+                <Link to="/contact" className="block text-gray-400 hover:text-white transition-colors">
+                  Contact
+                </Link>
+                <Link to="/blog" className="block text-gray-400 hover:text-white transition-colors">
+                  Blog
+                </Link>
+              </div>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-            <p className="text-gray-400">
-              © 2024 LegalDocs. All rights reserved.
-            </p>
+          
+          <div className="border-t border-gray-700 pt-8 mt-12">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-gray-400 text-lg">
+                © 2024 LegalDocs. All rights reserved.
+              </p>
+              <div className="flex space-x-8 mt-4 md:mt-0">
+                <Link to="/privacy" className="text-gray-400 hover:text-white transition-colors">
+                  Privacy Policy
+                </Link>
+                <Link to="/terms" className="text-gray-400 hover:text-white transition-colors">
+                  Terms of Service
+                </Link>
+                <Link to="/cookies" className="text-gray-400 hover:text-white transition-colors">
+                  Cookie Policy
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
     </div>
   );
 }
+
+export default LandingPage;

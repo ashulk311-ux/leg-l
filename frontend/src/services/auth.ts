@@ -48,12 +48,16 @@ class AuthService {
 
   private async loadUserProfile() {
     try {
-      const user = await apiService.get<User>('/auth/profile');
+      const user = await apiService.get<User>('/auth/me');
       this.authState.user = user;
       this.authState.isAuthenticated = true;
     } catch (error) {
       console.error('Failed to load user profile:', error);
-      this.logout();
+      // Clear auth state without calling logout API
+      this.authState.user = null;
+      this.authState.token = null;
+      this.authState.isAuthenticated = false;
+      apiService.clearToken();
     } finally {
       this.authState.isLoading = false;
       this.notifyListeners();
@@ -137,7 +141,7 @@ class AuthService {
 
   public async updateProfile(userData: Partial<User>): Promise<User> {
     try {
-      const updatedUser = await apiService.patch<User>('/auth/profile', userData);
+      const updatedUser = await apiService.patch<User>('/auth/me', userData);
       this.authState.user = updatedUser;
       this.notifyListeners();
       return updatedUser;
@@ -148,7 +152,7 @@ class AuthService {
 
   public async changePassword(currentPassword: string, newPassword: string): Promise<void> {
     try {
-      await apiService.patch('/auth/change-password', {
+      await apiService.patch('/users/me/password', {
         currentPassword,
         newPassword,
       });
@@ -159,7 +163,7 @@ class AuthService {
 
   public async requestPasswordReset(email: string): Promise<void> {
     try {
-      await apiService.post('/auth/forgot-password', { email });
+      await apiService.post('/auth/password-reset', { email });
     } catch (error) {
       throw error;
     }
@@ -167,7 +171,7 @@ class AuthService {
 
   public async resetPassword(token: string, newPassword: string): Promise<void> {
     try {
-      await apiService.post('/auth/reset-password', {
+      await apiService.post('/auth/password-reset/confirm', {
         token,
         newPassword,
       });

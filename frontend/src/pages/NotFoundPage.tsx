@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { HomeIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { Button } from '../components/ui/Button';
 
-export function NotFoundPage() {
+function NotFoundPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -42,3 +42,5 @@ export function NotFoundPage() {
     </div>
   );
 }
+
+export default NotFoundPage;

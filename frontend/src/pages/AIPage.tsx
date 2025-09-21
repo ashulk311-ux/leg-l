@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Button } from '../components/ui/Button';
 import { DocumentSummarizer } from '../components/ai/DocumentSummarizer';
 import { DocumentQA } from '../components/ai/DocumentQA';
 import { FactMatcher } from '../components/ai/FactMatcher';
 
-export function AIPage() {
+function AIPage() {
   const [activeTab, setActiveTab] = useState<'summarize' | 'qa' | 'facts'>('summarize');
 
   const tabs = [
@@ -50,3 +49,5 @@ export function AIPage() {
     </div>
   );
 }
+
+export default AIPage;

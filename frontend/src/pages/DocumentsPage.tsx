@@ -5,7 +5,7 @@ import { DocumentList } from '../components/documents/DocumentList';
 import { Button } from '../components/ui/Button';
 import { Document } from '@shared/types';
 
-export function DocumentsPage() {
+function DocumentsPage() {
   const [activeTab, setActiveTab] = useState<'list' | 'upload'>('list');
   const navigate = useNavigate();
 
@@ -60,3 +60,5 @@ export function DocumentsPage() {
     </div>
   );
 }
+
+export default DocumentsPage;

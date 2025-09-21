@@ -3,16 +3,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 
-import { User, UserDocument } from './schemas/user.schema';
+import { UserEntity, UserDocument } from './schemas/user.schema';
 import { CreateUserDto, UpdateUserDto, UserRole } from '@legal-docs/shared';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(UserEntity.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     try {
       const createdUser = new this.userModel(createUserDto);
       return await createdUser.save();
@@ -29,7 +29,7 @@ export class UsersService {
     limit: number = 20,
     role?: UserRole,
     status?: string,
-  ): Promise<{ users: User[]; total: number; page: number; limit: number }> {
+  ): Promise<{ users: UserEntity[]; total: number; page: number; limit: number }> {
     const query: any = {};
     
     if (role) {
@@ -55,15 +55,15 @@ export class UsersService {
     };
   }
 
-  async findById(id: string): Promise<User | null> {
+  async findById(id: string): Promise<UserEntity | null> {
     return this.userModel.findById(id).exec();
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<UserEntity | null> {
     return this.userModel.findOne({ email: email.toLowerCase() }).exec();
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
     const user = await this.userModel
       .findByIdAndUpdate(id, updateUserDto, { new: true })
       .exec();
@@ -75,7 +75,7 @@ export class UsersService {
     return user;
   }
 
-  async updatePassword(id: string, passwordHash: string): Promise<User> {
+  async updatePassword(id: string, passwordHash: string): Promise<UserEntity> {
     const user = await this.userModel
       .findByIdAndUpdate(id, { passwordHash }, { new: true })
       .exec();
@@ -87,7 +87,7 @@ export class UsersService {
     return user;
   }
 
-  async updateLastLogin(id: string): Promise<User> {
+  async updateLastLogin(id: string): Promise<UserEntity> {
     const user = await this.userModel
       .findByIdAndUpdate(id, { lastLogin: new Date() }, { new: true })
       .exec();
@@ -99,7 +99,7 @@ export class UsersService {
     return user;
   }
 
-  async updateProfile(id: string, profile: any): Promise<User> {
+  async updateProfile(id: string, profile: any): Promise<UserEntity> {
     const user = await this.userModel
       .findByIdAndUpdate(id, { profile }, { new: true })
       .exec();
@@ -111,7 +111,7 @@ export class UsersService {
     return user;
   }
 
-  async updatePreferences(id: string, preferences: any): Promise<User> {
+  async updatePreferences(id: string, preferences: any): Promise<UserEntity> {
     const user = await this.userModel
       .findByIdAndUpdate(id, { preferences }, { new: true })
       .exec();
@@ -162,7 +162,7 @@ export class UsersService {
       .exec();
   }
 
-  async suspendUser(id: string): Promise<User> {
+  async suspendUser(id: string): Promise<UserEntity> {
     const user = await this.userModel
       .findByIdAndUpdate(id, { status: 'suspended' }, { new: true })
       .exec();
@@ -174,7 +174,7 @@ export class UsersService {
     return user;
   }
 
-  async activateUser(id: string): Promise<User> {
+  async activateUser(id: string): Promise<UserEntity> {
     const user = await this.userModel
       .findByIdAndUpdate(id, { status: 'active' }, { new: true })
       .exec();

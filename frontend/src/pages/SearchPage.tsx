@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { SemanticSearch } from '../components/search/SemanticSearch';
 
-export function SearchPage() {
+function SearchPage() {
   const navigate = useNavigate();
 
   const handleResultSelect = (result: any) => {
@@ -22,3 +22,5 @@ export function SearchPage() {
     </div>
   );
 }
+
+export default SearchPage;

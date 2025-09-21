@@ -117,7 +117,7 @@ export class DocumentsController {
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'sortBy', required: false, type: String })
   @ApiQuery({ name: 'sortOrder', required: false, type: String })
-  @ApiResponse({ status: 200, description: 'Documents retrieved successfully', type: DocumentSearchResponse })
+  @ApiResponse({ status: 200, description: 'Documents retrieved successfully' })
   async findAll(
     @Request() req: any,
     @Query() searchDto: DocumentSearchDto,
@@ -136,7 +136,7 @@ export class DocumentsController {
   @ApiQuery({ name: 'year', required: false, type: Number })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiResponse({ status: 200, description: 'Public documents retrieved successfully', type: DocumentSearchResponse })
+  @ApiResponse({ status: 200, description: 'Public documents retrieved successfully' })
   async findPublicDocuments(
     @Query() searchDto: DocumentSearchDto,
   ): Promise<DocumentSearchResponse> {

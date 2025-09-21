@@ -78,8 +78,8 @@ export class VectorStoreService {
       await this.ensureCollectionExists();
       
     } catch (error) {
-      this.logger.error(`Failed to connect to Milvus: ${error.message}`, error.stack);
-      throw new BadRequestException('Failed to connect to vector database');
+      this.logger.warn(`Failed to connect to Milvus: ${error.message}. Vector search features will be disabled.`);
+      this.milvusClient = null; // Set to null to indicate no connection
     }
   }
 
@@ -108,52 +108,52 @@ export class VectorStoreService {
       fields: [
         {
           name: 'id',
-          data_type: 'VarChar',
+          data_type: 'VarChar' as any,
           is_primary_key: true,
           max_length: 100,
         },
         {
           name: 'chunk_id',
-          data_type: 'VarChar',
+          data_type: 'VarChar' as any,
           max_length: 100,
         },
         {
           name: 'document_id',
-          data_type: 'VarChar',
+          data_type: 'VarChar' as any,
           max_length: 100,
         },
         {
           name: 'text',
-          data_type: 'VarChar',
+          data_type: 'VarChar' as any,
           max_length: 10000,
         },
         {
           name: 'title',
-          data_type: 'VarChar',
+          data_type: 'VarChar' as any,
           max_length: 500,
         },
         {
           name: 'category',
-          data_type: 'VarChar',
+          data_type: 'VarChar' as any,
           max_length: 100,
         },
         {
           name: 'tags',
-          data_type: 'VarChar',
+          data_type: 'VarChar' as any,
           max_length: 1000,
         },
         {
           name: 'page_numbers',
-          data_type: 'VarChar',
+          data_type: 'VarChar' as any,
           max_length: 500,
         },
         {
           name: 'created_at',
-          data_type: 'Int64',
+          data_type: 'Int64' as any,
         },
         {
           name: 'vector',
-          data_type: 'FloatVector',
+          data_type: 'FloatVector' as any,
           dim: this.config.dimension!,
         },
       ],
@@ -179,6 +179,11 @@ export class VectorStoreService {
   async insertVectors(documents: VectorDocument[]): Promise<void> {
     if (this.config.type !== 'milvus') {
       throw new BadRequestException(`Vector store type '${this.config.type}' not supported for insertion`);
+    }
+
+    if (!this.milvusClient) {
+      this.logger.warn('Milvus client not available. Skipping vector insertion.');
+      return;
     }
 
     try {
@@ -212,6 +217,16 @@ export class VectorStoreService {
   async searchVectors(searchDto: VectorSearchDto): Promise<VectorSearchResponse> {
     if (this.config.type !== 'milvus') {
       throw new BadRequestException(`Vector store type '${this.config.type}' not supported for search`);
+    }
+
+    if (!this.milvusClient) {
+      this.logger.warn('Milvus client not available. Returning empty search results.');
+      return {
+        results: [],
+        total: 0,
+        processingTime: 0,
+        query: searchDto.query,
+      };
     }
 
     try {
@@ -282,6 +297,11 @@ export class VectorStoreService {
       throw new BadRequestException(`Vector store type '${this.config.type}' not supported for deletion`);
     }
 
+    if (!this.milvusClient) {
+      this.logger.warn('Milvus client not available. Skipping vector deletion.');
+      return;
+    }
+
     try {
       this.logger.log(`Deleting ${chunkIds.length} vectors`);
 
@@ -302,6 +322,17 @@ export class VectorStoreService {
   async getCollectionStats(): Promise<any> {
     if (this.config.type !== 'milvus') {
       throw new BadRequestException(`Vector store type '${this.config.type}' not supported for stats`);
+    }
+
+    if (!this.milvusClient) {
+      this.logger.warn('Milvus client not available. Returning empty stats.');
+      return {
+        collectionName: this.collectionName,
+        totalVectors: 0,
+        dimension: this.config.dimension,
+        type: this.config.type,
+        status: 'disconnected'
+      };
     }
 
     try {
