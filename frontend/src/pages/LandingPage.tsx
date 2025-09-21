@@ -13,7 +13,9 @@ function LandingPage() {
         <div className="container">
           <div className="flex justify-between items-center" style={{ height: '5rem' }}>
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg" style={{ 
+                background: 'linear-gradient(135deg, #3b82f6 0%, #9333ea 100%)'
+              }}>
                 <span className="text-white font-bold text-lg">⚖️</span>
               </div>
               <span className="text-3xl font-black gradient-text">
@@ -123,42 +125,42 @@ function LandingPage() {
                 icon: '🔍',
                 name: 'AI-Powered Search',
                 description: 'Find relevant information instantly across all your documents with natural language queries.',
-                color: 'from-blue-500 to-blue-600',
+                color: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                 stats: '95% accuracy'
               },
               {
                 icon: '📄',
                 name: 'Smart Summarization',
                 description: 'Quickly grasp the essence of lengthy legal texts with AI-generated summaries.',
-                color: 'from-green-500 to-emerald-600',
+                color: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 stats: '10x faster'
               },
               {
                 icon: '🔒',
                 name: 'Enterprise Security',
                 description: 'Bank-level encryption and compliance with SOC 2, GDPR, and HIPAA standards.',
-                color: 'from-purple-500 to-indigo-600',
+                color: 'linear-gradient(135deg, #8b5cf6 0%, #4f46e5 100%)',
                 stats: '99.9% secure'
               },
               {
                 icon: '⭐',
                 name: 'Fact Matching',
                 description: 'Verify facts and identify discrepancies automatically across documents.',
-                color: 'from-pink-500 to-red-600',
+                color: 'linear-gradient(135deg, #ec4899 0%, #dc2626 100%)',
                 stats: '99% precision'
               },
               {
                 icon: '👥',
                 name: 'Team Collaboration',
                 description: 'Share documents and collaborate seamlessly with your entire legal team.',
-                color: 'from-orange-500 to-red-600',
+                color: 'linear-gradient(135deg, #f97316 0%, #dc2626 100%)',
                 stats: 'Unlimited users'
               },
               {
                 icon: '⚡',
                 name: 'Workflow Automation',
                 description: 'Automate repetitive tasks and focus on what matters most.',
-                color: 'from-yellow-500 to-orange-600',
+                color: 'linear-gradient(135deg, #eab308 0%, #ea580c 100%)',
                 stats: '40h saved/week'
               },
             ].map((feature, index) => (
@@ -167,7 +169,9 @@ function LandingPage() {
                 className="landing-feature-card rounded-3xl p-8 interactive-card"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className={`inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r ${feature.color} mb-6 hover:scale-125 transition-transform duration-300 shadow-lg`}>
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-6 hover:scale-125 transition-transform duration-300 shadow-lg" style={{ 
+                  background: feature.color.includes('gradient') ? feature.color : `linear-gradient(135deg, ${feature.color} 0%, ${feature.color} 100%)`
+                }}>
                   <span className="text-3xl">{feature.icon}</span>
                 </div>
                 <div className="flex justify-between items-center mb-4">
@@ -234,7 +238,9 @@ function LandingPage() {
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg" style={{ 
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #9333ea 100%)'
+                }}>
                   <span className="text-white font-bold text-xl">⚖️</span>
                 </div>
                 <span className="text-3xl font-black text-white">
