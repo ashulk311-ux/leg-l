@@ -89,6 +89,16 @@ export class DocumentsController {
           type: 'boolean',
           description: 'Whether document is public',
         },
+        allowedUsers: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Users allowed to access this document',
+        },
+        allowedRoles: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Roles allowed to access this document',
+        },
       },
       required: ['file', 'title', 'category'],
     },
@@ -101,6 +111,62 @@ export class DocumentsController {
     @Body() createDocumentDto: CreateDocumentDto,
   ): Promise<Document> {
     return this.documentsService.create(createDocumentDto, file, req.user.sub);
+  }
+
+  @Post('judgement')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Upload a judgement document' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 201, description: 'Judgement document uploaded successfully', type: Document })
+  async uploadJudgement(
+    @Request() req: any,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createDocumentDto: CreateDocumentDto,
+  ): Promise<Document> {
+    const judgementDto = { ...createDocumentDto, category: 'judgement' as any };
+    return this.documentsService.create(judgementDto, file, req.user.sub);
+  }
+
+  @Post('circular')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Upload a circular document' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 201, description: 'Circular document uploaded successfully', type: Document })
+  async uploadCircular(
+    @Request() req: any,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createDocumentDto: CreateDocumentDto,
+  ): Promise<Document> {
+    const circularDto = { ...createDocumentDto, category: 'circular' as any };
+    return this.documentsService.create(circularDto, file, req.user.sub);
+  }
+
+  @Post('notification')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Upload a notification document' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 201, description: 'Notification document uploaded successfully', type: Document })
+  async uploadNotification(
+    @Request() req: any,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createDocumentDto: CreateDocumentDto,
+  ): Promise<Document> {
+    const notificationDto = { ...createDocumentDto, category: 'notification' as any };
+    return this.documentsService.create(notificationDto, file, req.user.sub);
+  }
+
+  @Post('statute')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Upload a statute document' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 201, description: 'Statute document uploaded successfully', type: Document })
+  async uploadStatute(
+    @Request() req: any,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createDocumentDto: CreateDocumentDto,
+  ): Promise<Document> {
+    const statuteDto = { ...createDocumentDto, category: 'statute' as any };
+    return this.documentsService.create(statuteDto, file, req.user.sub);
   }
 
   @Get()

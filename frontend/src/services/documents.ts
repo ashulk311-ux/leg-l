@@ -68,6 +68,98 @@ class DocumentService {
     );
   }
 
+  public async uploadJudgement(
+    file: File,
+    documentData: CreateDocumentDto,
+    onProgress?: (progress: DocumentUploadProgress) => void
+  ): Promise<Document> {
+    const progressCallback = onProgress 
+      ? (progress: number) => {
+          onProgress({
+            loaded: progress,
+            total: 100,
+            percentage: progress,
+          });
+        }
+      : undefined;
+
+    return apiService.uploadFile<Document>(
+      '/documents/judgement',
+      file,
+      documentData,
+      progressCallback
+    );
+  }
+
+  public async uploadCircular(
+    file: File,
+    documentData: CreateDocumentDto,
+    onProgress?: (progress: DocumentUploadProgress) => void
+  ): Promise<Document> {
+    const progressCallback = onProgress 
+      ? (progress: number) => {
+          onProgress({
+            loaded: progress,
+            total: 100,
+            percentage: progress,
+          });
+        }
+      : undefined;
+
+    return apiService.uploadFile<Document>(
+      '/documents/circular',
+      file,
+      documentData,
+      progressCallback
+    );
+  }
+
+  public async uploadNotification(
+    file: File,
+    documentData: CreateDocumentDto,
+    onProgress?: (progress: DocumentUploadProgress) => void
+  ): Promise<Document> {
+    const progressCallback = onProgress 
+      ? (progress: number) => {
+          onProgress({
+            loaded: progress,
+            total: 100,
+            percentage: progress,
+          });
+        }
+      : undefined;
+
+    return apiService.uploadFile<Document>(
+      '/documents/notification',
+      file,
+      documentData,
+      progressCallback
+    );
+  }
+
+  public async uploadStatute(
+    file: File,
+    documentData: CreateDocumentDto,
+    onProgress?: (progress: DocumentUploadProgress) => void
+  ): Promise<Document> {
+    const progressCallback = onProgress 
+      ? (progress: number) => {
+          onProgress({
+            loaded: progress,
+            total: 100,
+            percentage: progress,
+          });
+        }
+      : undefined;
+
+    return apiService.uploadFile<Document>(
+      '/documents/statute',
+      file,
+      documentData,
+      progressCallback
+    );
+  }
+
   public async getDocuments(params: DocumentListParams = {}): Promise<DocumentSearchResponse> {
     const queryParams = new URLSearchParams();
     

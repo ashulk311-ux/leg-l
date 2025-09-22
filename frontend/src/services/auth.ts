@@ -35,15 +35,47 @@ class AuthService {
   }
 
   private initializeAuth() {
+    console.log('Auth Service: Initializing auth...');
     const token = apiService.getToken();
+    console.log('Auth Service: API service token:', token ? 'EXISTS' : 'MISSING');
+    
     if (token) {
       this.authState.token = token;
       this.authState.isAuthenticated = true;
+      console.log('Auth Service: Token found, loading user profile...');
       this.loadUserProfile();
     } else {
+      console.log('Auth Service: No token found, setting loading to false');
       this.authState.isLoading = false;
       this.notifyListeners();
     }
+  }
+
+  public setToken(token: string) {
+    console.log('Auth Service: setToken called with:', {
+      token: token ? 'EXISTS' : 'MISSING',
+      tokenLength: token?.length || 0,
+      tokenPreview: token ? token.substring(0, 20) + '...' : 'NONE'
+    });
+    
+    if (!token || token.trim() === '') {
+      console.log('Auth Service: ERROR - Empty or null token provided!');
+      return;
+    }
+    
+    this.authState.token = token;
+    this.authState.isAuthenticated = true;
+    apiService.setToken(token);
+    this.notifyListeners();
+    console.log('Auth Service: Token set successfully');
+  }
+
+  public clearToken() {
+    this.authState.token = null;
+    this.authState.isAuthenticated = false;
+    this.authState.user = null;
+    apiService.clearToken();
+    this.notifyListeners();
   }
 
   private async loadUserProfile() {
@@ -69,18 +101,37 @@ class AuthService {
       this.authState.isLoading = true;
       this.notifyListeners();
 
+      console.log('Auth Service: Starting login with credentials:', { email: credentials.email });
       const response = await apiService.post<AuthResponse>('/auth/login', credentials);
+      console.log('Auth Service: Login response received:', {
+        hasUser: !!response.user,
+        hasAccessToken: !!response.accessToken,
+        hasData: !!response.data,
+        hasDataAccessToken: !!response.data?.accessToken,
+        tokenLength: response.accessToken?.length || 0,
+        dataTokenLength: response.data?.accessToken?.length || 0,
+        tokenPreview: response.accessToken ? response.accessToken.substring(0, 20) + '...' : 'NONE',
+        dataTokenPreview: response.data?.accessToken ? response.data.accessToken.substring(0, 20) + '...' : 'NONE'
+      });
       
-      this.authState.token = response.accessToken;
-      this.authState.user = response.user;
-      this.authState.isAuthenticated = true;
+      // Extract token from the correct location
+      const accessToken = response.accessToken || response.data?.accessToken;
+      const user = response.user || response.data?.user;
+      
+      this.authState.user = user;
       this.authState.isLoading = false;
-
-      apiService.setToken(response.accessToken);
-      this.notifyListeners();
+      
+      if (accessToken) {
+        console.log('Auth Service: Setting token from response');
+        this.setToken(accessToken);
+      } else {
+        console.log('Auth Service: ERROR - No access token in response!');
+        throw new Error('No access token received from server');
+      }
 
       return response;
     } catch (error) {
+      console.log('Auth Service: Login failed:', error);
       this.authState.isLoading = false;
       this.notifyListeners();
       throw error;
@@ -92,18 +143,35 @@ class AuthService {
       this.authState.isLoading = true;
       this.notifyListeners();
 
+      console.log('Auth Service: Starting register with userData:', { email: userData.email });
       const response = await apiService.post<AuthResponse>('/auth/register', userData);
+      console.log('Auth Service: Register response received:', {
+        hasUser: !!response.user,
+        hasAccessToken: !!response.accessToken,
+        hasData: !!response.data,
+        hasDataAccessToken: !!response.data?.accessToken,
+        tokenLength: response.accessToken?.length || 0,
+        dataTokenLength: response.data?.accessToken?.length || 0
+      });
       
-      this.authState.token = response.accessToken;
-      this.authState.user = response.user;
-      this.authState.isAuthenticated = true;
+      // Extract token from the correct location
+      const accessToken = response.accessToken || response.data?.accessToken;
+      const user = response.user || response.data?.user;
+      
+      this.authState.user = user;
       this.authState.isLoading = false;
-
-      apiService.setToken(response.accessToken);
-      this.notifyListeners();
+      
+      if (accessToken) {
+        console.log('Auth Service: Setting token from register response');
+        this.setToken(accessToken);
+      } else {
+        console.log('Auth Service: ERROR - No access token in register response!');
+        throw new Error('No access token received from server');
+      }
 
       return response;
     } catch (error) {
+      console.log('Auth Service: Register failed:', error);
       this.authState.isLoading = false;
       this.notifyListeners();
       throw error;
@@ -116,22 +184,15 @@ class AuthService {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      this.authState.user = null;
-      this.authState.token = null;
-      this.authState.isAuthenticated = false;
+      this.clearToken();
       this.authState.isLoading = false;
-
-      apiService.clearToken();
-      this.notifyListeners();
     }
   }
 
   public async refreshToken(): Promise<string> {
     try {
       const response = await apiService.post<{ accessToken: string }>('/auth/refresh');
-      this.authState.token = response.accessToken;
-      apiService.setToken(response.accessToken);
-      this.notifyListeners();
+      this.setToken(response.accessToken);
       return response.accessToken;
     } catch (error) {
       this.logout();

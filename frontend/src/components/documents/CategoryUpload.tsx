@@ -18,9 +18,8 @@ import { DocumentCategory } from '@shared/types';
 import { cn } from '../../utils/cn';
 import { formatFileSize } from '../../utils/format';
 
-const uploadSchema = z.object({
+const categoryUploadSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  category: z.nativeEnum(DocumentCategory, { message: 'Category is required' }),
   tags: z.string().optional(),
   jurisdiction: z.string().optional(),
   court: z.string().optional(),
@@ -31,7 +30,7 @@ const uploadSchema = z.object({
   allowedRoles: z.string().optional(),
 });
 
-type UploadFormData = z.infer<typeof uploadSchema>;
+type CategoryUploadFormData = z.infer<typeof categoryUploadSchema>;
 
 interface UploadedFile {
   file: File;
@@ -41,7 +40,12 @@ interface UploadedFile {
   error?: string;
 }
 
-export function DocumentUpload() {
+interface CategoryUploadProps {
+  category: DocumentCategory;
+  onUploadComplete?: () => void;
+}
+
+export function CategoryUpload({ category, onUploadComplete }: CategoryUploadProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -50,7 +54,7 @@ export function DocumentUpload() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<UploadFormData>({
+  } = useForm<CategoryUploadFormData>({
     defaultValues: {
       isPublic: false,
     },
@@ -86,7 +90,7 @@ export function DocumentUpload() {
     setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
   };
 
-  const onSubmit = async (data: UploadFormData) => {
+  const onSubmit = async (data: CategoryUploadFormData) => {
     if (uploadedFiles.length === 0) {
       toast.error('Please select at least one file to upload');
       return;
@@ -99,20 +103,20 @@ export function DocumentUpload() {
         try {
           const documentData = {
             title: data.title,
-            category: data.category,
+            category: category,
             isPublic: data.isPublic,
-            status: 'pending' as any, // Added missing status field
-            ownerId: '', // Added missing ownerId field (will be set by backend)
+            status: 'pending' as any,
+            ownerId: '',
             filename: uploadedFile.file.name,
             originalFilename: uploadedFile.file.name,
-            s3Key: '', // Will be set by the backend
-            s3Bucket: '', // Will be set by the backend
-            type: uploadedFile.file.type.split('/')[1] as any, // Extract file extension
+            s3Key: '',
+            s3Bucket: '',
+            type: uploadedFile.file.type.split('/')[1] as any,
             metadata: {
               size: uploadedFile.file.size,
               mimeType: uploadedFile.file.type,
               tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
-              ocrUsed: false, // Added missing ocrUsed field
+              ocrUsed: false,
               jurisdiction: data.jurisdiction,
               court: data.court,
               year: data.year,
@@ -137,7 +141,7 @@ export function DocumentUpload() {
 
           // Use category-specific upload method
           let uploadPromise;
-          switch (data.category) {
+          switch (category) {
             case DocumentCategory.JUDGEMENT:
               uploadPromise = documentService.uploadJudgement(uploadedFile.file, documentData, onProgress);
               break;
@@ -163,27 +167,36 @@ export function DocumentUpload() {
                 : file
             )
           );
-
-          return uploadedFile.file.name;
-        } catch (error: any) {
+        } catch (error) {
+          console.error('Upload error:', error);
           setUploadedFiles(prev => 
             prev.map(file => 
               file.id === uploadedFile.id 
-                ? { ...file, status: 'error', error: error.message }
+                ? { ...file, status: 'error', error: error instanceof Error ? error.message : 'Upload failed' }
                 : file
             )
           );
-          throw error;
         }
       });
 
-      const uploadedNames = await Promise.all(uploadPromises);
-      toast.success(`Successfully uploaded ${uploadedNames.length} document(s)`);
-      
-      // Reset form and files
-      reset();
-      setUploadedFiles([]);
-    } catch (error: any) {
+      await Promise.all(uploadPromises);
+
+      const successCount = uploadedFiles.filter(f => f.status === 'completed').length;
+      const errorCount = uploadedFiles.filter(f => f.status === 'error').length;
+
+      if (successCount > 0) {
+        toast.success(`Successfully uploaded ${successCount} document(s)`);
+        reset();
+        setUploadedFiles([]);
+        onUploadComplete?.();
+      }
+
+      if (errorCount > 0) {
+        toast.error(`Failed to upload ${errorCount} document(s)`);
+      }
+
+    } catch (error) {
+      console.error('Upload error:', error);
       toast.error('Upload failed. Please try again.');
     } finally {
       setIsUploading(false);
@@ -191,12 +204,23 @@ export function DocumentUpload() {
   };
 
   const getFileIcon = (file: File) => {
-    const type = file.type;
-    if (type.includes('pdf')) return '📄';
-    if (type.includes('word') || type.includes('document')) return '📝';
-    if (type.includes('text')) return '📃';
-    if (type.includes('image')) return '🖼️';
-    return '📎';
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return '📄';
+      case 'doc':
+      case 'docx':
+        return '📝';
+      case 'txt':
+        return '📃';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'tiff':
+        return '🖼️';
+      default:
+        return '📎';
+    }
   };
 
   const getStatusIcon = (status: UploadedFile['status']) => {
@@ -210,14 +234,44 @@ export function DocumentUpload() {
     }
   };
 
+  const getCategoryTitle = (category: DocumentCategory) => {
+    switch (category) {
+      case DocumentCategory.JUDGEMENT:
+        return 'Upload Judgement Documents';
+      case DocumentCategory.CIRCULAR:
+        return 'Upload Circular Documents';
+      case DocumentCategory.NOTIFICATION:
+        return 'Upload Notification Documents';
+      case DocumentCategory.STATUTE:
+        return 'Upload Statute Documents';
+      default:
+        return 'Upload Documents';
+    }
+  };
+
+  const getCategoryDescription = (category: DocumentCategory) => {
+    switch (category) {
+      case DocumentCategory.JUDGEMENT:
+        return 'Upload court judgements and legal decisions for processing and indexing';
+      case DocumentCategory.CIRCULAR:
+        return 'Upload government and official circulars for processing and indexing';
+      case DocumentCategory.NOTIFICATION:
+        return 'Upload legal notifications and announcements for processing and indexing';
+      case DocumentCategory.STATUTE:
+        return 'Upload legal statutes and regulations for processing and indexing';
+      default:
+        return 'Upload legal documents for processing and indexing';
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Upload Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Upload Documents</CardTitle>
+          <CardTitle>{getCategoryTitle(category)}</CardTitle>
           <CardDescription>
-            Upload legal documents for processing and indexing
+            {getCategoryDescription(category)}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -256,26 +310,6 @@ export function DocumentUpload() {
                 placeholder="Enter document title"
                 error={errors.title?.message}
               />
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Category *
-                </label>
-                <select
-                  {...register('category')}
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                >
-                  <option value="">Select category</option>
-                  {Object.values(DocumentCategory).map((category) => (
-                    <option key={category} value={category}>
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
-                    </option>
-                  ))}
-                </select>
-                {errors.category && (
-                  <p className="text-sm text-error-600">{errors.category.message}</p>
-                )}
-              </div>
 
               <Input
                 {...register('tags')}
@@ -377,6 +411,9 @@ export function DocumentUpload() {
                       <p className="text-sm text-gray-500">
                         {formatFileSize(uploadedFile.file.size)}
                       </p>
+                      {uploadedFile.error && (
+                        <p className="text-sm text-red-500">{uploadedFile.error}</p>
+                      )}
                     </div>
                   </div>
 

@@ -53,7 +53,7 @@ function DashboardPage() {
           }}
           >
             <CardHeader style={{ 
-              backgroundColor: '#f8fafc',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
               padding: '1.5rem',
               borderRadius: '12px 12px 0 0',
               borderBottom: '1px solid #e2e8f0'
@@ -61,16 +61,16 @@ function DashboardPage() {
               <CardTitle style={{ 
                 fontSize: '1.125rem', 
                 fontWeight: '600', 
-                color: '#1e293b',
+                color: 'white',
                 margin: '0 0 0.5rem 0',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}>
-                <DocumentTextIcon style={{ width: '1.25rem', height: '1.25rem', color: '#3b82f6' }} />
+                <DocumentTextIcon style={{ width: '1.25rem', height: '1.25rem', color: 'white' }} />
                 Judgement
               </CardTitle>
-              <CardDescription style={{ color: '#64748b', fontSize: '0.875rem', margin: '0' }}>
+              <CardDescription style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem', margin: '0' }}>
                 Upload court judgements and legal decisions
               </CardDescription>
             </CardHeader>
@@ -124,7 +124,7 @@ function DashboardPage() {
           }}
           >
             <CardHeader style={{ 
-              backgroundColor: '#f8fafc',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
               padding: '1.5rem',
               borderRadius: '12px 12px 0 0',
               borderBottom: '1px solid #e2e8f0'
@@ -132,16 +132,16 @@ function DashboardPage() {
               <CardTitle style={{ 
                 fontSize: '1.125rem', 
                 fontWeight: '600', 
-                color: '#1e293b',
+                color: 'white',
                 margin: '0 0 0.5rem 0',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}>
-                <DocumentTextIcon style={{ width: '1.25rem', height: '1.25rem', color: '#10b981' }} />
+                <DocumentTextIcon style={{ width: '1.25rem', height: '1.25rem', color: 'white' }} />
                 Circulars
               </CardTitle>
-              <CardDescription style={{ color: '#64748b', fontSize: '0.875rem', margin: '0' }}>
+              <CardDescription style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem', margin: '0' }}>
                 Upload government and official circulars
               </CardDescription>
             </CardHeader>
@@ -195,7 +195,7 @@ function DashboardPage() {
           }}
           >
             <CardHeader style={{ 
-              backgroundColor: '#f8fafc',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
               padding: '1.5rem',
               borderRadius: '12px 12px 0 0',
               borderBottom: '1px solid #e2e8f0'
@@ -203,16 +203,16 @@ function DashboardPage() {
               <CardTitle style={{ 
                 fontSize: '1.125rem', 
                 fontWeight: '600', 
-                color: '#1e293b',
+                color: 'white',
                 margin: '0 0 0.5rem 0',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}>
-                <DocumentTextIcon style={{ width: '1.25rem', height: '1.25rem', color: '#f59e0b' }} />
+                <DocumentTextIcon style={{ width: '1.25rem', height: '1.25rem', color: 'white' }} />
                 Notifications
               </CardTitle>
-              <CardDescription style={{ color: '#64748b', fontSize: '0.875rem', margin: '0' }}>
+              <CardDescription style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem', margin: '0' }}>
                 Upload legal notifications and announcements
               </CardDescription>
             </CardHeader>
@@ -266,7 +266,7 @@ function DashboardPage() {
           }}
           >
             <CardHeader style={{ 
-              backgroundColor: '#f8fafc',
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
               padding: '1.5rem',
               borderRadius: '12px 12px 0 0',
               borderBottom: '1px solid #e2e8f0'
@@ -274,16 +274,16 @@ function DashboardPage() {
               <CardTitle style={{ 
                 fontSize: '1.125rem', 
                 fontWeight: '600', 
-                color: '#1e293b',
+                color: 'white',
                 margin: '0 0 0.5rem 0',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}>
-                <DocumentTextIcon style={{ width: '1.25rem', height: '1.25rem', color: '#8b5cf6' }} />
+                <DocumentTextIcon style={{ width: '1.25rem', height: '1.25rem', color: 'white' }} />
                 Statutes
               </CardTitle>
-              <CardDescription style={{ color: '#64748b', fontSize: '0.875rem', margin: '0' }}>
+              <CardDescription style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem', margin: '0' }}>
                 Upload legal statutes and regulations
               </CardDescription>
             </CardHeader>
@@ -345,7 +345,7 @@ function DashboardPage() {
           }}
           >
             <CardHeader style={{ 
-              backgroundColor: '#f8fafc',
+              background: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
               padding: '1.5rem',
               borderRadius: '12px 12px 0 0',
               borderBottom: '1px solid #e2e8f0'
@@ -353,16 +353,16 @@ function DashboardPage() {
               <CardTitle style={{ 
                 fontSize: '1.125rem', 
                 fontWeight: '600', 
-                color: '#1e293b',
+                color: 'white',
                 margin: '0 0 0.5rem 0',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}>
-                <BoltIcon style={{ width: '1.25rem', height: '1.25rem' }} />
+                <BoltIcon style={{ width: '1.25rem', height: '1.25rem', color: 'white' }} />
                 Quick Actions
               </CardTitle>
-              <CardDescription style={{ color: '#64748b', fontSize: '0.875rem', margin: '0' }}>
+              <CardDescription style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem', margin: '0' }}>
                 Essential tools for your workflow
               </CardDescription>
             </CardHeader>
@@ -531,7 +531,7 @@ function DashboardPage() {
           }}
           >
             <CardHeader style={{ 
-              backgroundColor: '#f8fafc',
+              background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
               padding: '1.5rem',
               borderRadius: '12px 12px 0 0',
               borderBottom: '1px solid #e2e8f0'
@@ -539,16 +539,16 @@ function DashboardPage() {
               <CardTitle style={{ 
                 fontSize: '1.125rem', 
                 fontWeight: '600', 
-                color: '#1e293b',
+                color: 'white',
                 margin: '0 0 0.5rem 0',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}>
-                <ClockIcon style={{ width: '1.25rem', height: '1.25rem' }} />
+                <ClockIcon style={{ width: '1.25rem', height: '1.25rem', color: 'white' }} />
                 Recent Activity
               </CardTitle>
-              <CardDescription style={{ color: '#64748b', fontSize: '0.875rem', margin: '0' }}>
+              <CardDescription style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem', margin: '0' }}>
                 Your latest document activities
               </CardDescription>
             </CardHeader>
@@ -634,7 +634,7 @@ function DashboardPage() {
           }}
           >
             <CardHeader style={{ 
-              backgroundColor: '#f8fafc',
+              background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
               padding: '1.5rem',
               borderRadius: '12px 12px 0 0',
               borderBottom: '1px solid #e2e8f0'
@@ -642,16 +642,16 @@ function DashboardPage() {
               <CardTitle style={{ 
                 fontSize: '1.125rem', 
                 fontWeight: '600', 
-                color: '#1e293b',
+                color: 'white',
                 margin: '0 0 0.5rem 0',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}>
-                <ShieldCheckIcon style={{ width: '1.25rem', height: '1.25rem' }} />
+                <ShieldCheckIcon style={{ width: '1.25rem', height: '1.25rem', color: 'white' }} />
                 System Status
               </CardTitle>
-              <CardDescription style={{ color: '#64748b', fontSize: '0.875rem', margin: '0' }}>
+              <CardDescription style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem', margin: '0' }}>
                 Real-time system health
               </CardDescription>
             </CardHeader>

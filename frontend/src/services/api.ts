@@ -41,14 +41,33 @@ class ApiService {
 
     this.setupInterceptors();
     this.loadToken();
+    
+    // Set the authorization header if token exists
+    if (this.token) {
+      this.client.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+      console.log('API Service: Authorization header set on initialization');
+    }
+    
+    // Ensure token is loaded on initialization
+    console.log('API Service: Initialized with token:', this.token ? 'Token exists' : 'No token');
   }
 
   private setupInterceptors() {
     // Request interceptor
     this.client.interceptors.request.use(
       (config) => {
+        // Always try to get the latest token from localStorage
+        const latestToken = localStorage.getItem('auth_token');
+        if (latestToken && latestToken !== this.token) {
+          this.token = latestToken;
+          console.log('API Service: Updated token from localStorage');
+        }
+        
         if (this.token) {
           config.headers.Authorization = `Bearer ${this.token}`;
+          console.log('API Service: Adding Authorization header to request:', config.url);
+        } else {
+          console.log('API Service: No token available for request:', config.url);
         }
         return config;
       },
@@ -87,20 +106,48 @@ class ApiService {
 
   private loadToken() {
     this.token = localStorage.getItem('auth_token');
+    console.log('API Service: Loaded token from localStorage:', this.token ? 'Token exists' : 'No token found');
+    
+    // Set the authorization header if token exists
+    if (this.token) {
+      this.client.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+      console.log('API Service: Authorization header set on token load');
+    }
   }
 
   public setToken(token: string) {
     this.token = token;
     localStorage.setItem('auth_token', token);
+    console.log('API Service: Token set:', token ? 'Token exists' : 'No token');
+    
+    // Force update the axios instance headers
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    console.log('API Service: Authorization header set in axios defaults');
   }
 
   public clearToken() {
     this.token = null;
     localStorage.removeItem('auth_token');
+    
+    // Remove the authorization header from axios defaults
+    delete this.client.defaults.headers.common['Authorization'];
+    console.log('API Service: Authorization header removed from axios defaults');
   }
 
   public getToken(): string | null {
     return this.token;
+  }
+
+  public reloadToken(): void {
+    this.loadToken();
+    console.log('API Service: Token reloaded:', this.token ? 'Token exists' : 'No token');
+  }
+
+  public forceSetToken(token: string): void {
+    this.token = token;
+    localStorage.setItem('auth_token', token);
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    console.log('API Service: Token force set and header updated');
   }
 
   // Generic HTTP methods
