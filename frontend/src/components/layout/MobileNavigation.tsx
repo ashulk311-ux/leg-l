@@ -26,9 +26,9 @@ export function MobileNavigation({ isOpen, onClose }: MobileNavigationProps) {
     { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
     { name: 'Documents', href: '/documents', icon: DocumentTextIcon },
     { name: 'Search', href: '/search', icon: MagnifyingGlassIcon },
-    { name: 'AI Features', href: '/ai', icon: CpuChipIcon },
+    { name: 'AI Features', href: '/ai', icon: CpuChipIcon, hidden: true }, // Hidden but kept for future use
     ...(isAdmin() ? [{ name: 'Admin', href: '/admin', icon: CogIcon }] : []),
-  ];
+  ].filter(item => !item.hidden);
 
   const handleLogout = async () => {
     try {
@@ -58,7 +58,7 @@ export function MobileNavigation({ isOpen, onClose }: MobileNavigationProps) {
                 onClick={onClose}
                 className="rounded-md p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100"
               >
-                <XMarkIcon className="h-6 w-6" />
+                <XMarkIcon className="h-5 w-5" />
               </button>
             </div>
 

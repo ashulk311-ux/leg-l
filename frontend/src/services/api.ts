@@ -232,4 +232,4 @@ class ApiService {
 export const apiService = new ApiService();
 
 // Export types
-export type { ApiResponse, PaginatedResponse, ApiError };
+// Types are already exported from the interfaces above

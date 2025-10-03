@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { DocumentViewer } from '../components/documents/DocumentViewer';
+import { DualDocumentViewer } from '../components/documents/DualDocumentViewer';
 
 function DocumentViewerPage() {
   const { id } = useParams<{ id: string }>();
@@ -26,7 +26,7 @@ function DocumentViewerPage() {
     );
   }
 
-  return <DocumentViewer documentId={id} onClose={handleClose} />;
+  return <DualDocumentViewer documentId={id} onClose={handleClose} />;
 }
 
 export default DocumentViewerPage;

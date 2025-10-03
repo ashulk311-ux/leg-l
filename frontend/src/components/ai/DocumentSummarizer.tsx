@@ -93,7 +93,7 @@ export function DocumentSummarizer({
             <span>Document Summarization</span>
           </CardTitle>
           <CardDescription>
-            Generate AI-powered summaries of your legal documents
+            Generate intelligent summaries of your legal documents
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

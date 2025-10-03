@@ -245,4 +245,4 @@ class SearchService {
 export const searchService = new SearchService();
 
 // Export types
-export type { SearchFilters, SearchParams, SearchHistoryItem, SearchStats };
+// Types are already exported from the interfaces above

@@ -133,7 +133,7 @@ export function SemanticSearch({ onResultSelect, initialQuery = '' }: SemanticSe
       {/* Search Interface */}
       <Card>
         <CardHeader>
-          <CardTitle>AI-Powered Semantic Search</CardTitle>
+          <CardTitle>Semantic Search</CardTitle>
           <CardDescription>
             Find relevant legal documents using natural language queries
           </CardDescription>
@@ -183,7 +183,7 @@ export function SemanticSearch({ onResultSelect, initialQuery = '' }: SemanticSe
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center space-x-2"
             >
-              <FunnelIcon className="h-4 w-4" />
+              <FunnelIcon className="h-3 w-3" />
               <span>Advanced Filters</span>
             </Button>
 
@@ -302,7 +302,7 @@ export function SemanticSearch({ onResultSelect, initialQuery = '' }: SemanticSe
         <Card>
           <CardContent className="py-12">
             <div className="text-center">
-              <MagnifyingGlassIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <MagnifyingGlassIcon className="mx-auto h-8 w-8 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
               <p className="text-gray-500 mb-4">
                 Try adjusting your search terms or filters
@@ -349,19 +349,19 @@ export function SemanticSearch({ onResultSelect, initialQuery = '' }: SemanticSe
                         
                         <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
                           <span className="flex items-center space-x-1">
-                            <TagIcon className="h-4 w-4" />
+                            <TagIcon className="h-3 w-3" />
                             <span className="capitalize">{result.category}</span>
                           </span>
                           
                           {result.jurisdiction && (
                             <span className="flex items-center space-x-1">
-                              <BuildingOfficeIcon className="h-4 w-4" />
+                              <BuildingOfficeIcon className="h-3 w-3" />
                               <span>{result.jurisdiction}</span>
                             </span>
                           )}
                           
                           <span className="flex items-center space-x-1">
-                            <CalendarIcon className="h-4 w-4" />
+                            <CalendarIcon className="h-3 w-3" />
                             <span>{formatDate(result.createdAt)}</span>
                           </span>
                         </div>
@@ -408,7 +408,7 @@ export function SemanticSearch({ onResultSelect, initialQuery = '' }: SemanticSe
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <ClockIcon className="h-5 w-5" />
+              <ClockIcon className="h-4 w-4" />
               <span>Recent Searches</span>
             </CardTitle>
           </CardHeader>

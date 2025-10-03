@@ -104,29 +104,14 @@ export function CategoryUpload({ category, onUploadComplete }: CategoryUploadPro
           const documentData = {
             title: data.title,
             category: category,
+            tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
+            jurisdiction: data.jurisdiction,
+            court: data.court,
+            year: data.year,
+            caseNumber: data.caseNumber,
             isPublic: data.isPublic,
-            status: 'pending' as any,
-            ownerId: '',
-            filename: uploadedFile.file.name,
-            originalFilename: uploadedFile.file.name,
-            s3Key: '',
-            s3Bucket: '',
-            type: uploadedFile.file.type.split('/')[1] as any,
-            metadata: {
-              size: uploadedFile.file.size,
-              mimeType: uploadedFile.file.type,
-              tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
-              ocrUsed: false,
-              jurisdiction: data.jurisdiction,
-              court: data.court,
-              year: data.year,
-              caseNumber: data.caseNumber,
-            },
-            permissions: {
-              isPublic: data.isPublic,
-              allowedUsers: data.allowedUsers ? data.allowedUsers.split(',').map(user => user.trim()) : [],
-              allowedRoles: data.allowedRoles ? data.allowedRoles.split(',').map(role => role.trim()) : [],
-            },
+            allowedUsers: data.allowedUsers ? data.allowedUsers.split(',').map(user => user.trim()) : [],
+            allowedRoles: data.allowedRoles ? data.allowedRoles.split(',').map(role => role.trim()) : [],
           };
 
           const onProgress = (progress: DocumentUploadProgress) => {
@@ -287,7 +272,7 @@ export function CategoryUpload({ category, onUploadComplete }: CategoryUploadPro
               )}
             >
               <input {...getInputProps()} />
-              <CloudArrowUpIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <CloudArrowUpIcon className="mx-auto h-8 w-8 text-gray-400 mb-4" />
               {isDragActive ? (
                 <p className="text-lg text-primary-600">Drop the files here...</p>
               ) : (
@@ -439,7 +424,7 @@ export function CategoryUpload({ category, onUploadComplete }: CategoryUploadPro
                         onClick={() => removeFile(uploadedFile.id)}
                         className="text-gray-400 hover:text-gray-600"
                       >
-                        <XMarkIcon className="h-5 w-5" />
+                        <XMarkIcon className="h-4 w-4" />
                       </button>
                     )}
                   </div>

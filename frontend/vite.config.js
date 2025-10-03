@@ -32,7 +32,7 @@ export default defineConfig({
                     ui: ['@headlessui/react', '@heroicons/react'],
                     forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
                     query: ['@tanstack/react-query'],
-                    utils: ['axios', 'clsx', 'tailwind-merge'],
+                    utils: ['axios', 'clsx'],
                 },
             },
         },

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuthStore } from '../stores/auth';
 import { documentService } from '../services/documents';
 import { Button } from '../components/ui/Button';

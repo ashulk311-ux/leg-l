@@ -289,6 +289,34 @@ export class ChunksService {
     return filteredLines.join('\n');
   }
 
+  /**
+   * Save chunks created by Python processor
+   */
+  async saveChunksFromPython(documentId: string, pythonChunks: any[]): Promise<any[]> {
+    this.logger.log(`Saving ${pythonChunks.length} chunks from Python processor for document ${documentId}`);
+
+    const savedChunks = [];
+
+    for (const pythonChunk of pythonChunks) {
+      const chunk = new this.chunkModel({
+        documentId,
+        chunkText: pythonChunk.chunkText,
+        startPos: pythonChunk.startPos,
+        endPos: pythonChunk.endPos,
+        tokenCount: pythonChunk.tokenCount,
+        metadata: pythonChunk.metadata || {},
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const savedChunk = await chunk.save();
+      savedChunks.push(savedChunk);
+    }
+
+    this.logger.log(`Successfully saved ${savedChunks.length} chunks for document ${documentId}`);
+    return savedChunks;
+  }
+
   private createBatches<T>(items: T[], batchSize: number): T[][] {
     const batches: T[][] = [];
     for (let i = 0; i < items.length; i += batchSize) {

@@ -140,7 +140,7 @@ export function DocumentQA({
             <span>Document Q&A</span>
           </CardTitle>
           <CardDescription>
-            Ask questions about your legal documents and get AI-powered answers
+            Ask questions about your legal documents and get intelligent answers
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

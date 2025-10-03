@@ -253,4 +253,22 @@ export class DocumentsController {
     await this.documentsService.remove(id, req.user.sub);
     return { message: 'Document deleted successfully' };
   }
+
+  @Post(':id/convert-to-word')
+  @ApiOperation({ summary: 'Convert document chunks to Word format' })
+  @ApiResponse({ status: 200, description: 'Document converted to Word successfully' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  @ApiResponse({ status: 400, description: 'Document not ready for conversion' })
+  async convertToWord(@Param('id') id: string, @Request() req: any): Promise<{ wordUrl: string; wordKey: string }> {
+    return this.documentsService.convertToWord(id, req.user.sub);
+  }
+
+  @Get(':id/word-url')
+  @ApiOperation({ summary: 'Get Word document download URL' })
+  @ApiResponse({ status: 200, description: 'Word document URL retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Word document not found' })
+  async getWordDocumentUrl(@Param('id') id: string, @Request() req: any): Promise<{ wordUrl: string }> {
+    const wordUrl = await this.documentsService.getWordDocumentUrl(id, req.user.sub);
+    return { wordUrl };
+  }
 }

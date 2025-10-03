@@ -6,6 +6,8 @@ import { DocumentsController } from './documents.controller';
 import { DocumentsService } from './documents.service';
 import { LegalDocument, DocumentSchema } from './schemas/document.schema';
 import { StorageService } from '../common/services/storage.service';
+import { WordConversionService } from '../common/services/word-conversion.service';
+import { PdfTextExtractorService } from '../common/services/pdf-text-extractor.service';
 import { DocumentProcessor } from './processors/document.processor';
 import { ChunksModule } from '../chunks/chunks.module';
 
@@ -18,7 +20,7 @@ import { ChunksModule } from '../chunks/chunks.module';
     ChunksModule,
   ],
   controllers: [DocumentsController],
-  providers: [DocumentsService, StorageService, DocumentProcessor],
-  exports: [DocumentsService, StorageService],
+  providers: [DocumentsService, StorageService, WordConversionService, PdfTextExtractorService, DocumentProcessor],
+  exports: [DocumentsService, StorageService, WordConversionService, PdfTextExtractorService],
 })
 export class DocumentsModule {}

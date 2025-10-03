@@ -20,9 +20,9 @@ export function Header() {
     { name: 'Dashboard', href: '/dashboard' },
     { name: 'Documents', href: '/documents' },
     { name: 'Search', href: '/search' },
-    { name: 'AI Features', href: '/ai' },
+    { name: 'AI Features', href: '/ai', hidden: true }, // Hidden but kept for future use
     ...(isAdmin() ? [{ name: 'Admin', href: '/admin' }] : []),
-  ];
+  ].filter(item => !item.hidden);
 
   const handleLogout = async () => {
     try {
@@ -43,7 +43,7 @@ export function Header() {
                 onClick={() => setIsMobileMenuOpen(true)}
                 className="lg:hidden rounded-md p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100"
               >
-                <Bars3Icon className="h-6 w-6" />
+                <Bars3Icon className="h-5 w-5" />
               </button>
               
               <Link to="/dashboard" className="flex items-center space-x-2 ml-2 lg:ml-0">
@@ -79,12 +79,12 @@ export function Header() {
                 to="/search"
                 className="lg:hidden rounded-md p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100"
               >
-                <MagnifyingGlassIcon className="h-5 w-5" />
+                <MagnifyingGlassIcon className="h-4 w-4" />
               </Link>
 
               {/* Notifications */}
               <button className="hidden sm:block rounded-md p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100">
-                <BellIcon className="h-5 w-5" />
+                <BellIcon className="h-4 w-4" />
               </button>
 
               {/* User menu */}
@@ -106,7 +106,7 @@ export function Header() {
                 className="hidden sm:block rounded-md p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100"
                 title="Sign out"
               >
-                <ArrowRightOnRectangleIcon className="h-5 w-5" />
+                <ArrowRightOnRectangleIcon className="h-4 w-4" />
               </button>
             </div>
           </div>

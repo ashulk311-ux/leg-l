@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { Document, DocumentStatus, DocumentCategory } from '@shared/types';
-import { DocumentListParams, DocumentFilters, DocumentStats } from '../services/documents';
+import { Document, DocumentStatus, DocumentCategory, CreateDocumentDto } from '@shared/types';
+import { DocumentListParams, DocumentFilters, DocumentStats, documentService } from '../services/documents';
 
 interface DocumentStore {
   // State
@@ -35,6 +35,7 @@ interface DocumentStore {
   addDocument: (document: Document) => void;
   updateDocument: (id: string, updates: Partial<Document>) => void;
   removeDocument: (id: string) => void;
+  uploadDocument: (formData: FormData) => Promise<Document>;
   
   // Filter actions
   addFilter: (key: keyof DocumentFilters, value: any) => void;
@@ -110,6 +111,39 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
     currentDocument: state.currentDocument?._id === id ? null : state.currentDocument,
     totalCount: Math.max(0, state.totalCount - 1),
   })),
+
+  uploadDocument: async (formData: FormData) => {
+    try {
+      set({ isLoading: true, error: null });
+      
+      // Extract file and document data from FormData
+      const file = formData.get('file') as File;
+      const documentData: CreateDocumentDto = {
+        title: formData.get('title') as string,
+        description: formData.get('description') as string || '',
+        category: formData.get('category') as string,
+        jurisdiction: formData.get('jurisdiction') as string || '',
+        court: formData.get('court') as string || '',
+        year: formData.get('year') ? parseInt(formData.get('year') as string) : undefined,
+        caseNumber: formData.get('caseNumber') as string || '',
+        tags: formData.get('tags') ? (formData.get('tags') as string).split(',').map(tag => tag.trim()) : [],
+        isPublic: formData.get('isPublic') === 'true',
+      };
+
+      const document = await documentService.uploadDocument(file, documentData);
+      
+      set((state) => ({
+        documents: [document, ...state.documents],
+        totalCount: state.totalCount + 1,
+        isLoading: false,
+      }));
+
+      return document;
+    } catch (error: any) {
+      set({ isLoading: false, error: error.message });
+      throw error;
+    }
+  },
 
   // Filter actions
   addFilter: (key, value) => set((state) => {

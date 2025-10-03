@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
+import { Footer } from '../components/layout/Footer';
 
 function LandingPage() {
   return (
@@ -40,72 +42,11 @@ function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <div className="pt-24 pb-20 px-4 relative">
-        <div className="container text-center">
-          {/* Badge */}
-          <div className="landing-badge inline-flex items-center px-6 py-3 rounded-full text-blue-700 text-lg font-bold mb-8 animate-fade-in">
-            ✨ LegalTech Reimagined • Trusted by 10,000+ Lawyers
-          </div>
-
-          {/* Main Heading */}
-          <h1 className="text-6xl md:text-8xl font-black text-gray-900 mb-8 leading-tight animate-slide-up">
-            Transform Your
-            <span className="block landing-title mt-4">
-              Legal Practice
-            </span>
-            with AI
-          </h1>
-
-          {/* Subheading */}
-          <p className="text-2xl md:text-3xl text-gray-600 mb-16 leading-relaxed animate-fade-in" style={{ maxWidth: '60rem', margin: '0 auto 4rem' }}>
-            The most advanced AI-powered legal document management platform. 
-            <span className="font-semibold text-blue-600"> Save 40+ hours per week</span> with intelligent automation.
-          </p>
-          
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-20 animate-slide-up">
-            <Link 
-              to="/register"
-              className="btn btn-primary text-xl font-bold px-10 py-5 rounded-2xl shadow-2xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 animate-glow"
-            >
-              Start Free Trial →
-            </Link>
-            <Link 
-              to="/login"
-              className="btn btn-outline text-xl font-bold px-10 py-5 rounded-2xl transition-all duration-500 hover:-translate-y-2"
-            >
-              Watch Demo
-            </Link>
-          </div>
-
-          {/* Trust Indicators */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 animate-fade-in" style={{ maxWidth: '60rem', margin: '0 auto' }}>
-            <div className="text-center p-6 glass rounded-2xl">
-              <div className="text-3xl font-black text-gray-900 mb-2">10,000+</div>
-              <div className="text-gray-600 font-semibold">Active Lawyers</div>
-            </div>
-            <div className="text-center p-6 glass rounded-2xl">
-              <div className="text-3xl font-black text-gray-900 mb-2">1M+</div>
-              <div className="text-gray-600 font-semibold">Documents Processed</div>
-            </div>
-            <div className="text-center p-6 glass rounded-2xl">
-              <div className="text-3xl font-black text-gray-900 mb-2">99.9%</div>
-              <div className="text-gray-600 font-semibold">Uptime SLA</div>
-            </div>
-            <div className="text-center p-6 glass rounded-2xl">
-              <div className="text-3xl font-black text-gray-900 mb-2">50+</div>
-              <div className="text-gray-600 font-semibold">Countries</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Features Section */}
       <div className="py-24 bg-white relative">
         <div className="container">
           <div className="text-center mb-20">
-            <div className="inline-flex items-center px-6 py-3 rounded-full bg-purple-100 text-purple-700 text-lg font-bold mb-6">
+            <div className="inline-flex items-center px-6 py-3 rounded-full bg-purple-100 text-purple-700 text-lg font-bold mb-6" style={{ display: 'none' }}>
               ⚡ Powerful AI Features
             </div>
             <h2 className="text-5xl md:text-7xl font-black text-gray-900 mb-8">
@@ -115,7 +56,7 @@ function LandingPage() {
               </span>
             </h2>
             <p className="text-2xl text-gray-600" style={{ maxWidth: '50rem', margin: '0 auto' }}>
-              Our platform combines cutting-edge AI with intuitive design to transform how you work.
+              Our platform combines cutting-edge technology with intuitive design to transform how you work.
             </p>
           </div>
           
@@ -123,69 +64,115 @@ function LandingPage() {
             {[
               {
                 icon: '🔍',
-                name: 'AI-Powered Search',
+                name: 'Semantic Search',
                 description: 'Find relevant information instantly across all your documents with natural language queries.',
-                color: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                gradient: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
                 stats: '95% accuracy'
               },
               {
                 icon: '📄',
                 name: 'Smart Summarization',
-                description: 'Quickly grasp the essence of lengthy legal texts with AI-generated summaries.',
-                color: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                description: 'Quickly grasp the essence of lengthy legal texts with intelligent summaries.',
+                gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 stats: '10x faster'
               },
               {
                 icon: '🔒',
                 name: 'Enterprise Security',
                 description: 'Bank-level encryption and compliance with SOC 2, GDPR, and HIPAA standards.',
-                color: 'linear-gradient(135deg, #8b5cf6 0%, #4f46e5 100%)',
+                gradient: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
                 stats: '99.9% secure'
               },
               {
                 icon: '⭐',
                 name: 'Fact Matching',
                 description: 'Verify facts and identify discrepancies automatically across documents.',
-                color: 'linear-gradient(135deg, #ec4899 0%, #dc2626 100%)',
+                gradient: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
                 stats: '99% precision'
               },
               {
                 icon: '👥',
                 name: 'Team Collaboration',
                 description: 'Share documents and collaborate seamlessly with your entire legal team.',
-                color: 'linear-gradient(135deg, #f97316 0%, #dc2626 100%)',
+                gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 stats: 'Unlimited users'
               },
               {
                 icon: '⚡',
                 name: 'Workflow Automation',
                 description: 'Automate repetitive tasks and focus on what matters most.',
-                color: 'linear-gradient(135deg, #eab308 0%, #ea580c 100%)',
+                gradient: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
                 stats: '40h saved/week'
               },
             ].map((feature, index) => (
-              <div 
+              <Card 
                 key={index} 
-                className="landing-feature-card rounded-3xl p-8 interactive-card"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                style={{ 
+                  backgroundColor: 'white',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                  transition: 'all 0.3s ease',
+                  transform: 'translateY(0)',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+                }}
               >
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-6 hover:scale-125 transition-transform duration-300 shadow-lg" style={{ 
-                  background: feature.color.includes('gradient') ? feature.color : `linear-gradient(135deg, ${feature.color} 0%, ${feature.color} 100%)`
+                <CardHeader style={{ 
+                  background: feature.gradient,
+                  padding: '1.5rem',
+                  borderRadius: '12px 12px 0 0',
+                  borderBottom: '1px solid #e2e8f0'
                 }}>
-                  <span className="text-3xl">{feature.icon}</span>
-                </div>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-2xl font-bold text-gray-900">
+                  <CardTitle style={{ 
+                    fontSize: '1.125rem', 
+                    fontWeight: '600', 
+                    color: 'white',
+                    margin: '0 0 0.5rem 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <span style={{ fontSize: '1.25rem' }}>{feature.icon}</span>
                     {feature.name}
-                  </h3>
-                  <span className="text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                    {feature.stats}
-                  </span>
-                </div>
-                <p className="text-gray-600 text-lg leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
+                  </CardTitle>
+                  <CardDescription style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem', margin: '0' }}>
+                    {feature.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent style={{ padding: '1.5rem' }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    padding: '0.75rem',
+                    backgroundColor: '#f8fafc',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
+                  }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
+                      Performance
+                    </span>
+                    <span style={{ 
+                      fontSize: '0.875rem', 
+                      fontWeight: '600', 
+                      color: '#1e293b',
+                      background: feature.gradient,
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text'
+                    }}>
+                      {feature.stats}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
@@ -231,99 +218,7 @@ function LandingPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="landing-footer py-20">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-            {/* Brand */}
-            <div className="md:col-span-2">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg" style={{ 
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #9333ea 100%)'
-                }}>
-                  <span className="text-white font-bold text-xl">⚖️</span>
-                </div>
-                <span className="text-3xl font-black text-white">
-                  LegalDocs
-                </span>
-              </div>
-              
-              <p className="text-gray-300 text-xl mb-8 leading-relaxed">
-                The future of legal document management. AI-powered, secure, and designed for modern legal professionals.
-              </p>
-              
-              <div className="flex space-x-4">
-                <div className="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center hover:bg-gray-600 transition-colors cursor-pointer">
-                  <span className="text-white">📧</span>
-                </div>
-                <div className="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center hover:bg-gray-600 transition-colors cursor-pointer">
-                  <span className="text-white">🐦</span>
-                </div>
-                <div className="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center hover:bg-gray-600 transition-colors cursor-pointer">
-                  <span className="text-white">💼</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="text-xl font-bold text-white mb-6">Product</h3>
-              <div className="space-y-4">
-                <Link to="/features" className="block text-gray-400 hover:text-white transition-colors">
-                  Features
-                </Link>
-                <Link to="/pricing" className="block text-gray-400 hover:text-white transition-colors">
-                  Pricing
-                </Link>
-                <Link to="/security" className="block text-gray-400 hover:text-white transition-colors">
-                  Security
-                </Link>
-                <Link to="/integrations" className="block text-gray-400 hover:text-white transition-colors">
-                  Integrations
-                </Link>
-              </div>
-            </div>
-
-            {/* Company */}
-            <div>
-              <h3 className="text-xl font-bold text-white mb-6">Company</h3>
-              <div className="space-y-4">
-                <Link to="/about" className="block text-gray-400 hover:text-white transition-colors">
-                  About Us
-                </Link>
-                <Link to="/careers" className="block text-gray-400 hover:text-white transition-colors">
-                  Careers
-                </Link>
-                <Link to="/contact" className="block text-gray-400 hover:text-white transition-colors">
-                  Contact
-                </Link>
-                <Link to="/blog" className="block text-gray-400 hover:text-white transition-colors">
-                  Blog
-                </Link>
-              </div>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-700 pt-8 mt-12">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-gray-400 text-lg">
-                © 2024 LegalDocs. All rights reserved.
-              </p>
-              <div className="flex space-x-8 mt-4 md:mt-0">
-                <Link to="/privacy" className="text-gray-400 hover:text-white transition-colors">
-                  Privacy Policy
-                </Link>
-                <Link to="/terms" className="text-gray-400 hover:text-white transition-colors">
-                  Terms of Service
-                </Link>
-                <Link to="/cookies" className="text-gray-400 hover:text-white transition-colors">
-                  Cookie Policy
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer variant="landing" />
     </div>
   );
 }

@@ -13,7 +13,8 @@ const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const DocumentsPage = lazy(() => import('../pages/DocumentsPage'));
 const DocumentViewerPage = lazy(() => import('../pages/DocumentViewerPage'));
 const SearchPage = lazy(() => import('../pages/SearchPage'));
-const AIPage = lazy(() => import('../pages/AIPage'));
+const UploadPage = lazy(() => import('../pages/UploadPage'));
+const AIPage = lazy(() => import('../pages/AIPage')); // Hidden but kept for future use
 const AdminPage = lazy(() => import('../pages/AdminPage'));
 const ProfilePage = lazy(() => import('../pages/ProfilePage'));
 const TestAuth = lazy(() => import('../pages/TestAuth'));
@@ -150,6 +151,17 @@ export function AppRouter() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/upload"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <UploadPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        {/* AI Features - Hidden but kept for future use */}
         <Route
           path="/ai"
           element={

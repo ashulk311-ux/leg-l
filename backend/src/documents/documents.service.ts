@@ -6,6 +6,8 @@ import { Queue } from 'bull';
 
 import { LegalDocument, DocumentDocument } from './schemas/document.schema';
 import { StorageService } from '../common/services/storage.service';
+import { WordConversionService } from '../common/services/word-conversion.service';
+import { ChunksService } from '../chunks/chunks.service';
 import { 
   CreateDocumentDto, 
   UpdateDocumentDto, 
@@ -25,6 +27,8 @@ export class DocumentsService {
     @InjectModel(LegalDocument.name) private readonly documentModel: Model<DocumentDocument>,
     private readonly storageService: StorageService,
     @InjectQueue('document-processing') private readonly documentQueue: Queue,
+    private readonly wordConversionService: WordConversionService,
+    private readonly chunksService: ChunksService,
   ) {}
 
   async create(
@@ -49,9 +53,20 @@ export class DocumentsService {
         metadata: {
           size: uploadResult.size,
           mimeType: uploadResult.mimeType,
+          jurisdiction: createDocumentDto.jurisdiction,
+          court: createDocumentDto.court,
+          year: createDocumentDto.year,
+          caseNumber: createDocumentDto.caseNumber,
+          tags: createDocumentDto.tags || [],
+          ocrUsed: false,
           uploadedAt: new Date(),
         },
         uploadedAt: new Date(),
+        permissions: {
+          isPublic: createDocumentDto.isPublic || false,
+          allowedUsers: createDocumentDto.allowedUsers || [],
+          allowedRoles: createDocumentDto.allowedRoles || [],
+        },
       });
 
       const savedDocument = await document.save();
@@ -141,6 +156,16 @@ export class DocumentsService {
       _id: id,
       ownerId: userId,
     }).exec();
+
+    if (!document) {
+      throw new NotFoundException('Document not found');
+    }
+
+    return document;
+  }
+
+  async findOneById(id: string): Promise<LegalDocument> {
+    const document = await this.documentModel.findById(id).exec();
 
     if (!document) {
       throw new NotFoundException('Document not found');
@@ -306,6 +331,64 @@ export class DocumentsService {
       limit,
       totalPages: Math.ceil(total / limit),
     };
+  }
+
+  /**
+   * Convert document chunks to Word format
+   */
+  async convertToWord(id: string, userId: string): Promise<{ wordUrl: string; wordKey: string }> {
+    const document = await this.findOne(id, userId);
+    
+    if (document.status !== DocumentStatus.INDEXED) {
+      throw new BadRequestException('Document must be fully processed before conversion');
+    }
+
+    try {
+      // Get document chunks
+      const chunks = await this.chunksService.findByDocumentId(id);
+      
+      if (!chunks || chunks.length === 0) {
+        throw new BadRequestException('No chunks found for this document');
+      }
+
+      // Convert chunks to Word format
+      const wordBuffer = await this.wordConversionService.convertChunksToWord(id, chunks);
+      
+      // Store Word document
+      const wordKey = await this.wordConversionService.storeWordDocument(id, wordBuffer);
+      
+      // Get download URL
+      const wordUrl = await this.storageService.getFileUrl(wordKey);
+      
+      // Update document metadata with Word document info
+      await this.documentModel.findByIdAndUpdate(id, {
+        $set: {
+          'metadata.wordDocumentKey': wordKey,
+          'metadata.wordDocumentUrl': wordUrl,
+          'metadata.wordConvertedAt': new Date(),
+        }
+      });
+
+      this.logger.log(`Document ${id} converted to Word format successfully`);
+      
+      return { wordUrl, wordKey };
+    } catch (error) {
+      this.logger.error(`Failed to convert document ${id} to Word format: ${error.message}`, error.stack);
+      throw new BadRequestException('Failed to convert document to Word format');
+    }
+  }
+
+  /**
+   * Get Word document download URL
+   */
+  async getWordDocumentUrl(id: string, userId: string): Promise<string> {
+    const document = await this.findOne(id, userId);
+    
+    if (!document.metadata?.wordDocumentKey) {
+      throw new NotFoundException('Word document not found. Please convert the document first.');
+    }
+
+    return this.storageService.getFileUrl(document.metadata.wordDocumentKey);
   }
 
   private getDocumentType(mimeType: string): DocumentType {

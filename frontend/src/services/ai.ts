@@ -338,4 +338,4 @@ class AIService {
 export const aiService = new AIService();
 
 // Export types
-export type { AIUsageStats, AIConfig };
+// Types are already exported from the interfaces above

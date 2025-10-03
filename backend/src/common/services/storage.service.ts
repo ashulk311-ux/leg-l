@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import * as AWS from 'aws-sdk';
 import * as Minio from 'minio';
 import { v4 as uuidv4 } from 'uuid';
+import * as fs from 'fs';
+import * as path from 'path';
 import { 
   MAX_FILE_SIZE, 
   ALLOWED_FILE_TYPES, 
@@ -18,12 +20,13 @@ export interface UploadResult {
 }
 
 export interface StorageConfig {
-  type: 's3' | 'minio';
+  type: 's3' | 'minio' | 'local';
   bucket: string;
   region?: string;
   endpoint?: string;
   accessKey?: string;
   secretKey?: string;
+  localPath?: string;
 }
 
 @Injectable()
@@ -38,10 +41,10 @@ export class StorageService {
   }
 
   private initializeStorage() {
-    const storageType = this.configService.get<string>('STORAGE_TYPE', 'minio');
+    const storageType = this.configService.get<string>('STORAGE_TYPE', 'local');
     
     this.config = {
-      type: storageType as 's3' | 'minio',
+      type: storageType as 's3' | 'minio' | 'local',
       bucket: this.configService.get<string>('STORAGE_BUCKET', 'legal-docs'),
       region: this.configService.get<string>('AWS_REGION', 'us-east-1'),
       endpoint: this.configService.get<string>('MINIO_ENDPOINT', 'localhost'),
@@ -49,6 +52,7 @@ export class StorageService {
                  this.configService.get<string>('MINIO_ACCESS_KEY'),
       secretKey: this.configService.get<string>('AWS_SECRET_ACCESS_KEY') || 
                  this.configService.get<string>('MINIO_SECRET_KEY'),
+      localPath: this.configService.get<string>('LOCAL_STORAGE_PATH', './uploads'),
     };
 
     if (this.config.type === 's3') {
@@ -57,7 +61,7 @@ export class StorageService {
         secretAccessKey: this.config.secretKey,
         region: this.config.region,
       });
-    } else {
+    } else if (this.config.type === 'minio') {
       this.minioClient = new Minio.Client({
         endPoint: this.config.endpoint!,
         port: parseInt(this.configService.get<string>('MINIO_PORT', '9000')),
@@ -65,6 +69,12 @@ export class StorageService {
         accessKey: this.config.accessKey!,
         secretKey: this.config.secretKey!,
       });
+    } else if (this.config.type === 'local') {
+      // Ensure local storage directory exists
+      const uploadDir = path.resolve(this.config.localPath!);
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
     }
 
     this.logger.log(`Storage service initialized with ${this.config.type}`);
@@ -85,12 +95,43 @@ export class StorageService {
     try {
       if (this.config.type === 's3') {
         return await this.uploadToS3(file, key);
-      } else {
+      } else if (this.config.type === 'minio') {
         return await this.uploadToMinio(file, key);
+      } else if (this.config.type === 'local') {
+        return await this.uploadToLocal(file, key);
+      } else {
+        throw new Error(`Unsupported storage type: ${this.config.type}`);
       }
     } catch (error) {
       this.logger.error(`Failed to upload file: ${error.message}`, error.stack);
       throw new BadRequestException('File upload failed');
+    }
+  }
+
+  async uploadBuffer(
+    buffer: Buffer,
+    filename: string,
+    mimeType: string,
+    folder: string = 'documents',
+  ): Promise<UploadResult> {
+    // Generate unique key
+    const fileExtension = this.getFileExtension(filename);
+    const fileName = `${uuidv4()}${fileExtension}`;
+    const key = `${folder}/${fileName}`;
+
+    try {
+      if (this.config.type === 's3') {
+        return await this.uploadBufferToS3(buffer, key, mimeType);
+      } else if (this.config.type === 'minio') {
+        return await this.uploadBufferToMinio(buffer, key, mimeType);
+      } else if (this.config.type === 'local') {
+        return await this.uploadBufferToLocal(buffer, key, mimeType);
+      } else {
+        throw new Error(`Unsupported storage type: ${this.config.type}`);
+      }
+    } catch (error) {
+      this.logger.error(`Failed to upload buffer: ${error.message}`, error.stack);
+      throw new BadRequestException('Buffer upload failed');
     }
   }
 
@@ -143,6 +184,31 @@ export class StorageService {
     };
   }
 
+  private async uploadToLocal(file: Express.Multer.File, key: string): Promise<UploadResult> {
+    const uploadDir = path.resolve(this.config.localPath!);
+    const filePath = path.join(uploadDir, key);
+    const fileDir = path.dirname(filePath);
+
+    // Ensure directory exists
+    if (!fs.existsSync(fileDir)) {
+      fs.mkdirSync(fileDir, { recursive: true });
+    }
+
+    // Write file to local storage
+    fs.writeFileSync(filePath, file.buffer);
+
+    // Generate URL for local file
+    const url = `http://localhost:3000/uploads/${key}`;
+
+    return {
+      key,
+      bucket: this.config.bucket,
+      url,
+      size: file.size,
+      mimeType: file.mimetype,
+    };
+  }
+
   async deleteFile(key: string): Promise<void> {
     try {
       if (this.config.type === 's3') {
@@ -150,8 +216,13 @@ export class StorageService {
           Bucket: this.config.bucket,
           Key: key,
         }).promise();
-      } else {
+      } else if (this.config.type === 'minio') {
         await this.minioClient.removeObject(this.config.bucket, key);
+      } else if (this.config.type === 'local') {
+        const filePath = path.join(this.config.localPath!, key);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
       }
     } catch (error) {
       this.logger.error(`Failed to delete file ${key}: ${error.message}`, error.stack);
@@ -167,12 +238,16 @@ export class StorageService {
           Key: key,
           Expires: expiresIn,
         });
-      } else {
+      } else if (this.config.type === 'minio') {
         return await this.minioClient.presignedGetObject(
           this.config.bucket,
           key,
           expiresIn,
         );
+      } else if (this.config.type === 'local') {
+        return `http://localhost:3000/uploads/${key}`;
+      } else {
+        throw new Error(`Unsupported storage type: ${this.config.type}`);
       }
     } catch (error) {
       this.logger.error(`Failed to generate file URL for ${key}: ${error.message}`, error.stack);
@@ -204,8 +279,71 @@ export class StorageService {
     }
   }
 
+  private async uploadBufferToS3(buffer: Buffer, key: string, mimeType: string): Promise<UploadResult> {
+    const params: AWS.S3.PutObjectRequest = {
+      Bucket: this.config.bucket,
+      Key: key,
+      Body: buffer,
+      ContentType: mimeType,
+      ContentLength: buffer.length,
+    };
+
+    const result = await this.s3Client.upload(params).promise();
+
+    return {
+      key,
+      bucket: this.config.bucket,
+      url: result.Location,
+      size: buffer.length,
+      mimeType,
+    };
+  }
+
+  private async uploadBufferToMinio(buffer: Buffer, key: string, mimeType: string): Promise<UploadResult> {
+    const result = await this.minioClient.putObject(
+      this.config.bucket,
+      key,
+      buffer,
+      buffer.length,
+      { 'Content-Type': mimeType }
+    );
+
+    return {
+      key,
+      bucket: this.config.bucket,
+      url: `${this.config.endpoint}/${this.config.bucket}/${key}`,
+      size: buffer.length,
+      mimeType,
+    };
+  }
+
+  private async uploadBufferToLocal(buffer: Buffer, key: string, mimeType: string): Promise<UploadResult> {
+    const filePath = path.join(this.config.localPath, key);
+    const dir = path.dirname(filePath);
+
+    // Ensure directory exists
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    // Write buffer to file
+    fs.writeFileSync(filePath, buffer);
+
+    return {
+      key,
+      bucket: this.config.bucket,
+      url: `file://${filePath}`,
+      size: buffer.length,
+      mimeType,
+    };
+  }
+
   private getFileExtension(filename: string): string {
-    return filename.slice((filename.lastIndexOf('.') - 1 >>> 0) + 2);
+    const lastDotIndex = filename.lastIndexOf('.');
+    if (lastDotIndex === -1) {
+      return '';
+    }
+    return filename.slice(lastDotIndex);
   }
 
   async getFileMetadata(key: string): Promise<any> {

@@ -72,7 +72,18 @@ export const DocumentSchema = z.object({
 
 // Document Types
 export type Document = z.infer<typeof DocumentSchema>;
-export type CreateDocumentDto = Omit<Document, '_id' | 'createdAt' | 'updatedAt' | 'uploadedAt' | 'processedAt' | 'indexedAt'>;
+export type CreateDocumentDto = Omit<Document, '_id' | 'createdAt' | 'updatedAt' | 'uploadedAt' | 'processedAt' | 'indexedAt' | 'metadata' | 'permissions'> & {
+  // Flatten metadata properties to top level for easier API usage
+  jurisdiction?: string;
+  court?: string;
+  year?: number;
+  caseNumber?: string;
+  tags?: string[];
+  // Flatten permissions properties to top level
+  isPublic?: boolean;
+  allowedUsers?: string[];
+  allowedRoles?: string[];
+};
 export type UpdateDocumentDto = Partial<Omit<Document, '_id' | 'createdAt' | 'uploadedAt'>>;
 export type DocumentMetadata = Document['metadata'];
 export type DocumentPermissions = Document['permissions'];

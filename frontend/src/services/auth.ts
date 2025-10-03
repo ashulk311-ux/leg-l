@@ -106,17 +106,13 @@ class AuthService {
       console.log('Auth Service: Login response received:', {
         hasUser: !!response.user,
         hasAccessToken: !!response.accessToken,
-        hasData: !!response.data,
-        hasDataAccessToken: !!response.data?.accessToken,
         tokenLength: response.accessToken?.length || 0,
-        dataTokenLength: response.data?.accessToken?.length || 0,
-        tokenPreview: response.accessToken ? response.accessToken.substring(0, 20) + '...' : 'NONE',
-        dataTokenPreview: response.data?.accessToken ? response.data.accessToken.substring(0, 20) + '...' : 'NONE'
+        tokenPreview: response.accessToken ? response.accessToken.substring(0, 20) + '...' : 'NONE'
       });
       
-      // Extract token from the correct location
-      const accessToken = response.accessToken || response.data?.accessToken;
-      const user = response.user || response.data?.user;
+      // Extract token from the response
+      const accessToken = response.accessToken;
+      const user = response.user;
       
       this.authState.user = user;
       this.authState.isLoading = false;
@@ -148,15 +144,12 @@ class AuthService {
       console.log('Auth Service: Register response received:', {
         hasUser: !!response.user,
         hasAccessToken: !!response.accessToken,
-        hasData: !!response.data,
-        hasDataAccessToken: !!response.data?.accessToken,
-        tokenLength: response.accessToken?.length || 0,
-        dataTokenLength: response.data?.accessToken?.length || 0
+        tokenLength: response.accessToken?.length || 0
       });
       
-      // Extract token from the correct location
-      const accessToken = response.accessToken || response.data?.accessToken;
-      const user = response.user || response.data?.user;
+      // Extract token from the response
+      const accessToken = response.accessToken;
+      const user = response.user;
       
       this.authState.user = user;
       this.authState.isLoading = false;
@@ -285,4 +278,4 @@ class AuthService {
 export const authService = new AuthService();
 
 // Export types
-export type { LoginRequest, RegisterRequest, AuthState };
+// Types are already exported from the interfaces above

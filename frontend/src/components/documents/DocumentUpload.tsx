@@ -100,29 +100,14 @@ export function DocumentUpload() {
           const documentData = {
             title: data.title,
             category: data.category,
+            tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
+            jurisdiction: data.jurisdiction,
+            court: data.court,
+            year: data.year,
+            caseNumber: data.caseNumber,
             isPublic: data.isPublic,
-            status: 'pending' as any, // Added missing status field
-            ownerId: '', // Added missing ownerId field (will be set by backend)
-            filename: uploadedFile.file.name,
-            originalFilename: uploadedFile.file.name,
-            s3Key: '', // Will be set by the backend
-            s3Bucket: '', // Will be set by the backend
-            type: uploadedFile.file.type.split('/')[1] as any, // Extract file extension
-            metadata: {
-              size: uploadedFile.file.size,
-              mimeType: uploadedFile.file.type,
-              tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
-              ocrUsed: false, // Added missing ocrUsed field
-              jurisdiction: data.jurisdiction,
-              court: data.court,
-              year: data.year,
-              caseNumber: data.caseNumber,
-            },
-            permissions: {
-              isPublic: data.isPublic,
-              allowedUsers: data.allowedUsers ? data.allowedUsers.split(',').map(user => user.trim()) : [],
-              allowedRoles: data.allowedRoles ? data.allowedRoles.split(',').map(role => role.trim()) : [],
-            },
+            allowedUsers: data.allowedUsers ? data.allowedUsers.split(',').map(user => user.trim()) : [],
+            allowedRoles: data.allowedRoles ? data.allowedRoles.split(',').map(role => role.trim()) : [],
           };
 
           const onProgress = (progress: DocumentUploadProgress) => {
@@ -202,9 +187,9 @@ export function DocumentUpload() {
   const getStatusIcon = (status: UploadedFile['status']) => {
     switch (status) {
       case 'completed':
-        return <CheckCircleIcon className="h-5 w-5 text-green-500" />;
+        return <CheckCircleIcon className="h-4 w-4 text-green-500" />;
       case 'error':
-        return <ExclamationTriangleIcon className="h-5 w-5 text-red-500" />;
+        return <ExclamationTriangleIcon className="h-4 w-4 text-red-500" />;
       default:
         return null;
     }
@@ -213,10 +198,10 @@ export function DocumentUpload() {
   return (
     <div className="space-y-6">
       {/* Upload Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Upload Documents</CardTitle>
-          <CardDescription>
+      <Card className="border-0 bg-white/90 backdrop-blur-sm shadow-lg">
+        <CardHeader className="pb-6">
+          <CardTitle className="text-2xl font-bold text-gray-900">📤 Upload Documents</CardTitle>
+          <CardDescription className="text-lg text-gray-600">
             Upload legal documents for processing and indexing
           </CardDescription>
         </CardHeader>
@@ -226,24 +211,29 @@ export function DocumentUpload() {
             <div
               {...getRootProps()}
               className={cn(
-                'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors',
+                'border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all duration-200',
                 isDragActive 
-                  ? 'border-primary-500 bg-primary-50' 
-                  : 'border-gray-300 hover:border-gray-400'
+                  ? 'border-blue-500 bg-blue-50 scale-105' 
+                  : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50/50'
               )}
             >
               <input {...getInputProps()} />
-              <CloudArrowUpIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+                <CloudArrowUpIcon className="h-8 w-8 text-blue-600" />
+              </div>
               {isDragActive ? (
-                <p className="text-lg text-primary-600">Drop the files here...</p>
+                <p className="text-xl font-semibold text-blue-600">Drop the files here...</p>
               ) : (
                 <div>
-                  <p className="text-lg text-gray-600 mb-2">
+                  <p className="text-xl font-semibold text-gray-700 mb-3">
                     Drag & drop files here, or click to select
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 mb-4">
                     Supports PDF, DOCX, TXT, JPG, PNG, TIFF (max 50MB each)
                   </p>
+                  <div className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg">
+                    Choose Files
+                  </div>
                 </div>
               )}
             </div>
@@ -402,7 +392,7 @@ export function DocumentUpload() {
                         onClick={() => removeFile(uploadedFile.id)}
                         className="text-gray-400 hover:text-gray-600"
                       >
-                        <XMarkIcon className="h-5 w-5" />
+                        <XMarkIcon className="h-4 w-4" />
                       </button>
                     )}
                   </div>

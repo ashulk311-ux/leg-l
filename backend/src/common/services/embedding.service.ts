@@ -51,10 +51,16 @@ export class EmbeddingService {
 
   async generateEmbedding(request: EmbeddingRequest): Promise<EmbeddingResponse> {
     const providerName = this.configService.get<string>('EMBEDDING_PROVIDER', 'openai');
-    const provider = this.providers.get(providerName);
+    let provider = this.providers.get(providerName);
 
+    // Fallback to local provider if the requested provider is not available
     if (!provider) {
-      throw new BadRequestException(`Embedding provider '${providerName}' not available`);
+      this.logger.warn(`Embedding provider '${providerName}' not available, falling back to local provider`);
+      provider = this.providers.get('local');
+      
+      if (!provider) {
+        throw new BadRequestException(`No embedding providers available`);
+      }
     }
 
     try {
@@ -70,10 +76,16 @@ export class EmbeddingService {
 
   async generateBatchEmbeddings(requests: EmbeddingRequest[]): Promise<EmbeddingResponse[]> {
     const providerName = this.configService.get<string>('EMBEDDING_PROVIDER', 'openai');
-    const provider = this.providers.get(providerName);
+    let provider = this.providers.get(providerName);
 
+    // Fallback to local provider if the requested provider is not available
     if (!provider) {
-      throw new BadRequestException(`Embedding provider '${providerName}' not available`);
+      this.logger.warn(`Embedding provider '${providerName}' not available, falling back to local provider`);
+      provider = this.providers.get('local');
+      
+      if (!provider) {
+        throw new BadRequestException(`No embedding providers available`);
+      }
     }
 
     try {

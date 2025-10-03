@@ -75,7 +75,7 @@ export function DocumentViewer({ documentId, onClose }: DocumentViewerProps) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading document...</p>
         </div>
       </div>
@@ -87,7 +87,7 @@ export function DocumentViewer({ documentId, onClose }: DocumentViewerProps) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="max-w-md">
           <CardContent className="py-12 text-center">
-            <DocumentIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <DocumentIcon className="mx-auto h-8 w-8 text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">Document not found</h3>
             <p className="text-gray-500 mb-4">
               The document you're looking for doesn't exist or you don't have permission to view it.
@@ -256,7 +256,7 @@ export function DocumentViewer({ documentId, onClose }: DocumentViewerProps) {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">Processing Document</h3>
                     <p className="text-gray-500">
                       Your document is being processed. This may take a few minutes.
@@ -343,9 +343,9 @@ export function DocumentViewer({ documentId, onClose }: DocumentViewerProps) {
               </Card>
             )}
 
-            {/* AI Actions */}
+            {/* AI Actions - Hidden but kept for future use */}
             {document.status === DocumentStatus.INDEXED && (
-              <Card>
+              <Card style={{ display: 'none' }}>
                 <CardHeader>
                   <CardTitle>AI Features</CardTitle>
                 </CardHeader>

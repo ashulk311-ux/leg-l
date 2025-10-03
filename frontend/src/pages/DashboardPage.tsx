@@ -436,6 +436,7 @@ function DashboardPage() {
                   <MagnifyingGlassIcon style={{ width: '1.25rem', height: '1.25rem' }} />
                 Search Documents
               </Button>
+              {/* AI Analysis - Hidden but kept for future use */}
               <Button 
                 variant="outline" 
                   style={{ 
@@ -447,7 +448,7 @@ function DashboardPage() {
                     fontSize: '0.875rem',
                     fontWeight: '500',
                     cursor: 'pointer',
-                    display: 'flex',
+                    display: 'none', // Hidden but kept for future use
                     alignItems: 'center',
                     gap: '0.75rem',
                     width: '100%',
@@ -677,8 +678,9 @@ function DashboardPage() {
                   </div>
                   <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#16a34a' }}>Online</span>
                 </div>
+                {/* AI Services - Hidden but kept for future use */}
                 <div style={{ 
-                  display: 'flex', 
+                  display: 'none', // Hidden but kept for future use
                   alignItems: 'center', 
                   justifyContent: 'space-between',
                   padding: '0.75rem',

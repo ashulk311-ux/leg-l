@@ -278,11 +278,20 @@ class DocumentService {
   }
 
   public async getDocumentChunks(id: string): Promise<any[]> {
-    return apiService.get<any[]>(`/chunks/document/${id}`);
+    const response = await apiService.get<{ success: boolean; data: any[] }>(`/chunks/document/${id}`);
+    return response.data || [];
   }
 
   public async getChunk(id: string): Promise<any> {
     return apiService.get<any>(`/chunks/${id}`);
+  }
+
+  public async convertDocumentToWord(id: string): Promise<{ wordUrl: string; wordKey: string }> {
+    return apiService.post<{ wordUrl: string; wordKey: string }>(`/documents/${id}/convert-to-word`);
+  }
+
+  public async getWordDocumentUrl(id: string): Promise<{ wordUrl: string }> {
+    return apiService.get<{ wordUrl: string }>(`/documents/${id}/word-url`);
   }
 
   // Utility methods
@@ -363,4 +372,4 @@ class DocumentService {
 export const documentService = new DocumentService();
 
 // Export types
-export type { DocumentUploadProgress, DocumentFilters, DocumentListParams, DocumentStats };
+// Types are already exported from the interfaces above
