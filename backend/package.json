@@ -4,10 +4,10 @@
   "description": "Backend API server for Legal Document Management System",
   "main": "dist/main.js",
   "scripts": {
-    "build": "nest build",
+    "build": "nest build && ./scripts/post-build.sh",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start": "./scripts/post-build.sh && nest start",
+    "start:dev": "./scripts/post-build.sh && nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",

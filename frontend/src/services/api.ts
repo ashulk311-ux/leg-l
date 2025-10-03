@@ -152,28 +152,33 @@ class ApiService {
 
   // Generic HTTP methods
   public async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.get<T>(url, config);
-    return response.data;
+    const response = await this.client.get<ApiResponse<T>>(url, config);
+    // Backend wraps responses in { success: true, data: T, timestamp: string }
+    return (response.data as any).data ?? response.data;
   }
 
   public async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.post<T>(url, data, config);
-    return response.data;
+    const response = await this.client.post<ApiResponse<T>>(url, data, config);
+    // Backend wraps responses in { success: true, data: T, timestamp: string }
+    return (response.data as any).data ?? response.data;
   }
 
   public async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.put<T>(url, data, config);
-    return response.data;
+    const response = await this.client.put<ApiResponse<T>>(url, data, config);
+    // Backend wraps responses in { success: true, data: T, timestamp: string }
+    return (response.data as any).data ?? response.data;
   }
 
   public async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.patch<T>(url, data, config);
-    return response.data;
+    const response = await this.client.patch<ApiResponse<T>>(url, data, config);
+    // Backend wraps responses in { success: true, data: T, timestamp: string }
+    return (response.data as any).data ?? response.data;
   }
 
   public async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.delete<T>(url, config);
-    return response.data;
+    const response = await this.client.delete<ApiResponse<T>>(url, config);
+    // Backend wraps responses in { success: true, data: T, timestamp: string }
+    return (response.data as any).data ?? response.data;
   }
 
   // File upload method
@@ -206,8 +211,9 @@ class ApiService {
       },
     };
 
-    const response = await this.client.post<T>(url, formData, config);
-    return response.data;
+    const response = await this.client.post<ApiResponse<T>>(url, formData, config);
+    // Backend wraps responses in { success: true, data: T, timestamp: string }
+    return (response.data as any).data ?? response.data;
   }
 
   // Download file method

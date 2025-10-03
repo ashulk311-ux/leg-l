@@ -48,6 +48,9 @@ export class LegalDocument {
       ocrUsed: { type: Boolean, default: false },
       processingTime: { type: Number },
       errorMessage: { type: String },
+      wordDocumentKey: { type: String },
+      wordDocumentUrl: { type: String },
+      wordConvertedAt: { type: Date },
     },
   })
   metadata: any;

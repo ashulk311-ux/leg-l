@@ -218,7 +218,29 @@ export class DocumentsService {
     const updateData: any = { status, updatedAt: new Date() };
     
     if (metadata) {
-      updateData.metadata = { ...updateData.metadata, ...metadata };
+      // Get existing document to preserve current metadata
+      const existingDoc = await this.documentModel.findById(id).exec();
+      const existingMetadata = existingDoc?.metadata?.toObject ? existingDoc.metadata.toObject() : (existingDoc?.metadata || {});
+      
+      // Clean mongoose internal fields from both existing and new metadata
+      const cleanMetadata = (obj: any) => {
+        if (!obj) return {};
+        const cleaned: any = {};
+        for (const key of Object.keys(obj)) {
+          // Skip mongoose internal fields
+          if (!key.startsWith('$') && !key.startsWith('_') && key !== '__v' && key !== '_doc') {
+            cleaned[key] = obj[key];
+          }
+        }
+        return cleaned;
+      };
+      
+      const cleanedExistingMetadata = cleanMetadata(existingMetadata);
+      const cleanedNewMetadata = cleanMetadata(metadata);
+      
+      updateData.metadata = { ...cleanedExistingMetadata, ...cleanedNewMetadata };
+      
+      this.logger.log(`Updating document ${id} metadata with keys: ${JSON.stringify(Object.keys(updateData.metadata))}`);
     }
 
     if (status === DocumentStatus.PROCESSING) {

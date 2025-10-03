@@ -78,12 +78,12 @@ export function DocumentList({
       const response = await documentService.getDocuments(params);
       
       console.log('DocumentList - API Response:', response);
-      console.log('DocumentList - Documents count:', response.data?.documents?.length);
+      console.log('DocumentList - Documents count:', response.documents?.length);
       
-      setDocuments(response.data?.documents || []);
-      setTotalCount(response.data?.total || 0);
-      setLocalCurrentPage(response.data?.page || 1);
-      setTotalPages(response.data?.totalPages || 1);
+      setDocuments(response.documents || []);
+      setTotalCount(response.total || 0);
+      setLocalCurrentPage(response.page || 1);
+      setTotalPages(response.totalPages || 1);
       
       return response;
     },
@@ -100,9 +100,9 @@ export function DocumentList({
   useEffect(() => {
     console.log('DocumentList - Data changed:', { 
       hasData: !!data, 
-      documentsLength: data?.data?.documents?.length,
+      documentsLength: data?.documents?.length,
       isLoading,
-      documents: data?.data?.documents 
+      documents: data?.documents 
     });
   }, [data, isLoading]);
 
@@ -353,7 +353,7 @@ export function DocumentList({
             </Card>
           ))}
         </div>
-      ) : (!data?.data?.documents || data.data.documents.length === 0) ? (
+      ) : (!data?.documents || data.documents.length === 0) ? (
         <Card className="border-0 bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl">
           <CardContent className="py-20">
             <div className="text-center">
@@ -378,7 +378,7 @@ export function DocumentList({
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {data?.data?.documents?.map((document) => (
+            {data?.documents?.map((document) => (
               <Card key={document._id} className="hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 border-0 bg-white/95 backdrop-blur-sm group rounded-2xl overflow-hidden">
                 <CardHeader className="pb-6 bg-gradient-to-r from-gray-50/50 to-gray-100/50">
                   <div className="flex items-start justify-between">

@@ -10,8 +10,12 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { PythonFilesChecker } from './common/utils/python-files-checker';
 
 async function bootstrap() {
+  // Check and ensure Python files are available
+  PythonFilesChecker.checkPythonFiles();
+  
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
   const logger = new Logger('Bootstrap');

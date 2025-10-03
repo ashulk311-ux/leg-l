@@ -137,7 +137,6 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
                     ? 'bg-primary-600 text-white'
                     : 'bg-white text-gray-700 hover:bg-gray-50'
                 }`}
-                disabled={!wordUrl}
               >
                 Split View
               </button>
@@ -189,7 +188,7 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
 
       {/* Content Area */}
       <div className="flex-1 p-6">
-        {activeView === 'split' && wordUrl ? (
+        {activeView === 'split' ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
             {/* Original Document */}
             <Card className="h-full">
@@ -234,11 +233,45 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
               </CardHeader>
               <CardContent className="h-full">
                 <div className="h-96 border border-gray-200 rounded-lg overflow-hidden">
-                  <iframe
-                    src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(wordUrl)}`}
-                    className="w-full h-full"
-                    title="Word Document"
-                  />
+                  {wordUrl ? (
+                    <div className="flex items-center justify-center h-full bg-gradient-to-br from-green-50 to-blue-50">
+                      <div className="text-center max-w-md p-8">
+                        <div className="mx-auto w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+                          <span className="text-4xl">📝</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-3">Word Document Ready!</h3>
+                        <p className="text-gray-600 mb-6">
+                          Download the editable Word version to view and edit on your device.
+                        </p>
+                        <Button 
+                          onClick={() => window.open(wordUrl, '_blank')}
+                          className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all"
+                        >
+                          <span className="mr-2">📥</span>
+                          Download Word Document
+                        </Button>
+                        <p className="text-xs text-gray-500 mt-4">
+                          Opens in a new tab • Compatible with Microsoft Word, Google Docs, LibreOffice
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-full bg-gray-50">
+                      <div className="text-center">
+                        <p className="text-gray-500 mb-4">Word document not available</p>
+                        <Button 
+                          onClick={handleConvertToWord}
+                          disabled={isConverting || document?.status !== DocumentStatus.INDEXED}
+                          size="sm"
+                        >
+                          {isConverting ? 'Converting...' : 'Convert to Word'}
+                        </Button>
+                        {conversionError && (
+                          <p className="text-red-500 text-sm mt-2">{conversionError}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -285,11 +318,27 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
             </CardHeader>
             <CardContent className="h-full">
               <div className="h-96 border border-gray-200 rounded-lg overflow-hidden">
-                <iframe
-                  src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(wordUrl)}`}
-                  className="w-full h-full"
-                  title="Word Document"
-                />
+                <div className="flex items-center justify-center h-full bg-gradient-to-br from-green-50 to-blue-50">
+                  <div className="text-center max-w-md p-8">
+                    <div className="mx-auto w-24 h-24 bg-gradient-to-br from-green-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+                      <span className="text-5xl">📝</span>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4">Word Document Ready!</h3>
+                    <p className="text-gray-600 mb-8">
+                      Download the editable Word version to view and edit on your device.
+                    </p>
+                    <Button 
+                      onClick={() => window.open(wordUrl, '_blank')}
+                      className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all text-lg"
+                    >
+                      <span className="mr-3">📥</span>
+                      Download Word Document
+                    </Button>
+                    <p className="text-sm text-gray-500 mt-6">
+                      Opens in a new tab • Compatible with Microsoft Word, Google Docs, LibreOffice
+                    </p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
