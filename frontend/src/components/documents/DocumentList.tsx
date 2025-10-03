@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { 
   MagnifyingGlassIcon,
@@ -27,6 +28,63 @@ interface DocumentListProps {
   onDocumentDelete?: (documentId: string) => void;
   showActions?: boolean;
 }
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { 
+    opacity: 0, 
+    y: 30,
+    scale: 0.95,
+  },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 15,
+      mass: 0.5,
+    },
+  },
+  hover: {
+    y: -8,
+    scale: 1.02,
+    transition: {
+      type: 'spring',
+      stiffness: 300,
+      damping: 20,
+    },
+  },
+  tap: {
+    scale: 0.98,
+  },
+};
+
+const searchVariants = {
+  hidden: { opacity: 0, scale: 0.95, y: -20 },
+  visible: { 
+    opacity: 1, 
+    scale: 1, 
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 150,
+      damping: 20,
+    },
+  },
+};
 
 export function DocumentList({ 
   onDocumentSelect, 
@@ -182,19 +240,37 @@ export function DocumentList({
 
   return (
     <div className="space-y-8">
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="font-black mb-3" style={{ fontFamily: "'Inter', 'system-ui', sans-serif", letterSpacing: '-0.04em', fontSize: '25px', color: '#444' }}>
+          📚 Document Library
+        </h1>
+        <p className="text-xl font-medium" style={{ fontFamily: "'Inter', 'system-ui', sans-serif", color: '#444' }}>
+          Manage and explore your legal documents with AI-powered insights
+        </p>
+      </div>
+
       {/* Professional Search and Filters Header */}
-      <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm rounded-2xl">
-        <CardContent className="py-8">
-          <div className="flex flex-col lg:flex-row gap-6">
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={searchVariants}
+      >
+        <Card className="shadow-2xl border-0 bg-white rounded-3xl overflow-hidden">
+          <CardContent className="py-8 px-8">
+          <div className="flex flex-row gap-4 items-center">
             {/* Enhanced Search */}
-            <div className="flex-1">
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <div style={{ width: '85%' }}>
+              <div className="relative group">
+                <div className="absolute left-5 top-1/2 transform -translate-y-1/2 p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-md group-hover:scale-110 transition-transform duration-200">
+                  <MagnifyingGlassIcon className="h-5 w-5 text-white" />
+                </div>
                 <Input
                   placeholder="Search documents by title, content, or tags..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className="pl-12 pr-4 py-4 text-base border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 rounded-xl shadow-sm transition-all duration-200"
+                  className="pl-16 pr-6 py-6 text-base font-semibold border-0 focus:ring-2 focus:ring-blue-500/30 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 bg-white"
+                  style={{ fontFamily: "'Inter', 'system-ui', sans-serif", boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', width: '100%' }}
                 />
               </div>
             </div>
@@ -203,22 +279,23 @@ export function DocumentList({
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-3 h-14 px-8 text-sm font-medium border-gray-300 hover:border-primary-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 shadow-sm"
+              className="flex items-center space-x-2 h-16 px-8 text-base font-bold border-0 text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl flex-shrink-0"
+              style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}
             >
-              <FunnelIcon className="h-4 w-4" />
-              <span>Advanced Filters</span>
+              <FunnelIcon className="h-5 w-5" />
+              <span>Filters</span>
             </Button>
           </div>
 
           {/* Professional Advanced Filters */}
           {showFilters && (
             <div className="mt-8 pt-8 border-t border-gray-200/60">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Status Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Status Filter */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#444' }}>
+                      Status
+                    </label>
                   <select
                     multiple
                     value={filters.status || []}
@@ -236,11 +313,11 @@ export function DocumentList({
                   </select>
                 </div>
 
-                {/* Category Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category
-                  </label>
+                  {/* Category Filter */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#444' }}>
+                      Category
+                    </label>
                   <select
                     multiple
                     value={filters.categories || []}
@@ -258,11 +335,11 @@ export function DocumentList({
                   </select>
                 </div>
 
-                {/* Year Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Year
-                  </label>
+                  {/* Year Filter */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#444' }}>
+                      Year
+                    </label>
                   <Input
                     type="number"
                     placeholder="e.g., 2024"
@@ -274,11 +351,11 @@ export function DocumentList({
                   />
                 </div>
 
-                {/* Public Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Visibility
-                  </label>
+                  {/* Public Filter */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#444' }}>
+                      Visibility
+                    </label>
                   <select
                     value={filters.isPublic === undefined ? '' : filters.isPublic.toString()}
                     onChange={(e) => {
@@ -294,23 +371,24 @@ export function DocumentList({
                 </div>
               </div>
 
-              <div className="mt-4 flex justify-between">
-                <Button variant="outline" onClick={clearFilters}>
-                  Clear Filters
-                </Button>
-                <div className="text-sm text-gray-500">
-                  {data?.total || 0} document(s) found
+                <div className="mt-4 flex justify-between">
+                  <Button variant="outline" onClick={clearFilters}>
+                    Clear Filters
+                  </Button>
+                  <div className="text-sm" style={{ color: '#444' }}>
+                    {data?.total || 0} document(s) found
+                  </div>
                 </div>
-              </div>
             </div>
           )}
         </CardContent>
       </Card>
+      </motion.div>
 
-      {/* Sort Options */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-600">Sort by:</span>
+        {/* Sort Options */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center space-x-4">
+            <span className="text-sm" style={{ color: '#444' }}>Sort by:</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
@@ -328,126 +406,175 @@ export function DocumentList({
           >
             {sortOrder === 'asc' ? '↑' : '↓'}
           </Button>
+          </div>
+
+          <div className="text-sm" style={{ color: '#444' }}>
+            Page {currentPage} of {data?.totalPages || 1}
+          </div>
         </div>
 
-        <div className="text-sm text-gray-500">
-          Page {currentPage} of {data?.totalPages || 1}
-        </div>
-      </div>
-
-      {/* Document Grid */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="animate-pulse border-0 bg-white/50">
-              <CardContent className="p-6">
-                <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-                <div className="space-y-2 mb-4">
-                  <div className="h-3 bg-gray-200 rounded w-full"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                </div>
-                <div className="h-8 bg-gray-200 rounded w-full"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+          {/* Document Grid */}
+          {isLoading ? (
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {Array.from({ length: 6 }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  variants={cardVariants}
+                >
+                  <Card className="border-0 bg-white/50 shadow-xl rounded-3xl overflow-hidden">
+                    <CardContent className="p-8">
+                      <div className="relative overflow-hidden">
+                        {/* Shimmer effect */}
+                        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+                        
+                        <div className="space-y-6">
+                          <div className="h-7 bg-gradient-to-r from-gray-200 to-gray-300 rounded-2xl w-3/4 animate-pulse"></div>
+                          <div className="h-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl w-1/2 animate-pulse"></div>
+                          
+                          <div className="space-y-4 pt-4">
+                            <div className="flex items-center space-x-4">
+                              <div className="h-12 w-12 bg-gradient-to-br from-blue-200 to-blue-300 rounded-2xl animate-pulse"></div>
+                              <div className="h-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl w-24 animate-pulse"></div>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                              <div className="h-12 w-12 bg-gradient-to-br from-purple-200 to-purple-300 rounded-2xl animate-pulse"></div>
+                              <div className="h-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl w-32 animate-pulse"></div>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                              <div className="h-12 w-12 bg-gradient-to-br from-emerald-200 to-emerald-300 rounded-2xl animate-pulse"></div>
+                              <div className="h-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl w-20 animate-pulse"></div>
+                            </div>
+                          </div>
+                          
+                          <div className="pt-6 border-t-2 border-gray-100 grid grid-cols-3 gap-3">
+                            <div className="h-12 bg-gradient-to-r from-blue-200 to-blue-300 rounded-2xl animate-pulse"></div>
+                            <div className="h-12 bg-gradient-to-r from-emerald-200 to-emerald-300 rounded-2xl animate-pulse"></div>
+                            <div className="h-12 bg-gradient-to-r from-red-200 to-red-300 rounded-2xl animate-pulse"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
       ) : (!data?.documents || data.documents.length === 0) ? (
-        <Card className="border-0 bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl">
-          <CardContent className="py-20">
+        <Card className="border-0 bg-white shadow-2xl rounded-3xl">
+          <CardContent className="py-24">
             <div className="text-center">
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mb-8 shadow-lg">
-                <DocumentIcon className="h-10 w-10 text-primary-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">No documents found</h3>
-              <p className="text-gray-600 mb-8 max-w-lg mx-auto text-lg leading-relaxed">
+                  <div className="mx-auto w-28 h-28 bg-gradient-to-br from-blue-100 via-blue-200 to-purple-200 rounded-3xl flex items-center justify-center mb-10 shadow-2xl">
+                    <DocumentIcon className="h-14 w-14 text-blue-600" />
+                  </div>
+                  <h3 className="text-4xl font-black mb-5" style={{ fontFamily: "'Inter', 'system-ui', sans-serif", letterSpacing: '-0.03em', color: '#444' }}>No documents found</h3>
+                  <p className="mb-10 max-w-2xl mx-auto text-xl leading-relaxed font-medium" style={{ fontFamily: "'Inter', 'system-ui', sans-serif", color: '#444' }}>
                 {searchQuery || Object.keys(filters).length > 0
                   ? 'Try adjusting your search criteria or filters to find what you\'re looking for'
-                  : 'Get started by uploading your first legal document'
+                  : 'Get started by uploading your first legal document and unlock powerful AI-driven insights'
                 }
               </p>
               {(!searchQuery && Object.keys(filters).length === 0) && (
-                <Button className="px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
-                  📤 Upload Your First Document
+                <Button className="px-10 py-5 text-lg font-bold rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>
+                  <span className="text-2xl mr-3">📤</span>
+                  Upload Your First Document
                 </Button>
               )}
             </div>
           </CardContent>
         </Card>
       ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {data?.documents?.map((document) => (
-              <Card key={document._id} className="hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 border-0 bg-white/95 backdrop-blur-sm group rounded-2xl overflow-hidden">
-                <CardHeader className="pb-6 bg-gradient-to-r from-gray-50/50 to-gray-100/50">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-xl font-bold text-gray-900 truncate group-hover:text-primary-600 transition-colors duration-200">
-                        {document.title}
-                      </CardTitle>
-                      <CardDescription className="mt-3 text-sm text-gray-600 font-medium">
-                        {document.filename}
-                      </CardDescription>
+          <>
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {data?.documents?.map((document) => (
+                <motion.div
+                  key={document._id}
+                  variants={cardVariants}
+                  whileHover="hover"
+                  whileTap="tap"
+                  layout
+                >
+                  <Card className="group border-0 bg-white shadow-xl rounded-3xl overflow-hidden h-full">
+                <CardHeader className="pb-6 bg-gradient-to-br from-slate-50 via-white to-blue-50/40 relative">
+                  {/* Decorative top bar */}
+                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+                  
+                    <div className="flex items-start justify-between pt-2">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-lg font-black truncate group-hover:text-blue-600 transition-colors duration-300 mb-1" style={{ fontFamily: "'Inter', 'system-ui', sans-serif", letterSpacing: '-0.03em', color: '#444' }}>
+                          {document.title}
+                        </CardTitle>
+                        <CardDescription className="mt-3 text-sm font-bold tracking-wide uppercase" style={{ fontFamily: "'Inter', 'system-ui', sans-serif", fontSize: '0.75rem', color: '#444' }}>
+                          {document.filename}
+                        </CardDescription>
                     </div>
                     <div className="flex items-center space-x-2 ml-4">
-                      <span className={cn('px-4 py-2 rounded-xl text-xs font-bold shadow-md', getStatusColor(document.status))}>
+                      <span className={cn('px-4 py-2.5 rounded-xl text-xs font-extrabold shadow-lg uppercase tracking-widest', getStatusColor(document.status))} style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>
                         {getStatusText(document.status)}
                       </span>
                     </div>
                   </div>
                 </CardHeader>
                 
-                <CardContent className="pt-6">
-                  <div className="space-y-6">
+                <CardContent className="pt-8 px-7 pb-7">
+                  <div className="space-y-7">
                     {/* Enhanced Metadata */}
-                    <div className="space-y-4 text-sm">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-primary-100 rounded-lg">
-                          <TagIcon className="h-4 w-4 text-primary-600" />
+                    <div className="bg-gradient-to-br from-gray-50 to-blue-50/50 rounded-2xl p-5 space-y-4 border border-gray-100">
+                      <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg">
+                          <TagIcon className="h-5 w-5" style={{ color: '#444' }} />
                         </div>
-                        <span className={cn('px-4 py-2 rounded-xl text-xs font-bold shadow-sm', getCategoryColor(document.category))}>
+                        <span className={cn('px-5 py-2.5 rounded-2xl text-xs font-extrabold shadow-md uppercase tracking-widest', getCategoryColor(document.category))} style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>
                           {document.category.charAt(0).toUpperCase() + document.category.slice(1)}
                         </span>
                       </div>
                       
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                          <CalendarIcon className="h-4 w-4 text-blue-600" />
+                      <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg">
+                          <CalendarIcon className="h-5 w-5" style={{ color: '#444' }} />
                         </div>
-                        <span className="text-gray-700 font-medium">{formatDate(document.uploadedAt)}</span>
+                        <span className="font-bold text-sm" style={{ fontFamily: "'Inter', 'system-ui', sans-serif", color: '#444' }}>{formatDate(document.uploadedAt)}</span>
                       </div>
                       
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-green-100 rounded-lg">
-                          <DocumentIcon className="h-4 w-4 text-green-600" />
+                      <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl shadow-lg">
+                          <DocumentIcon className="h-5 w-5" style={{ color: '#444' }} />
                         </div>
-                        <span className="text-gray-700 font-medium">{formatFileSize(document.metadata?.size || 0)}</span>
+                        <span className="font-bold text-sm" style={{ fontFamily: "'Inter', 'system-ui', sans-serif", color: '#444' }}>{formatFileSize(document.metadata?.size || 0)}</span>
                       </div>
                       
                       {document.metadata?.jurisdiction && (
-                        <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-purple-100 rounded-lg">
-                            <BuildingOfficeIcon className="h-4 w-4 text-purple-600" />
+                        <div className="flex items-center space-x-4">
+                          <div className="p-3 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl shadow-lg">
+                            <BuildingOfficeIcon className="h-5 w-5" style={{ color: '#444' }} />
                           </div>
-                          <span className="text-gray-700 font-medium">{document.metadata?.jurisdiction}</span>
+                          <span className="font-bold text-sm" style={{ fontFamily: "'Inter', 'system-ui', sans-serif", color: '#444' }}>{document.metadata?.jurisdiction}</span>
                         </div>
                       )}
                     </div>
 
                     {/* Tags */}
                     {document.metadata?.tags && document.metadata.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2.5">
                         {document.metadata?.tags.slice(0, 3).map((tag, index) => (
                           <span
                             key={index}
-                            className="px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-200"
+                            className="px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 text-xs font-bold rounded-xl border-2 border-blue-200 shadow-sm hover:shadow-md transition-all duration-200"
+                            style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}
                           >
                             #{tag}
                           </span>
                         ))}
                         {document.metadata?.tags && document.metadata.tags.length > 3 && (
-                          <span className="px-3 py-1.5 bg-gray-50 text-gray-600 text-xs font-medium rounded-full border border-gray-200">
+                          <span className="px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 text-xs font-bold rounded-xl border-2 border-gray-200 shadow-sm" style={{ fontFamily: "'Inter', 'system-ui', sans-serif", color: '#444' }}>
                             +{document.metadata?.tags.length - 3} more
                           </span>
                         )}
@@ -456,37 +583,80 @@ export function DocumentList({
 
                     {/* Professional Action Buttons */}
                     {showActions && (
-                      <div className="flex items-center justify-between pt-6 border-t border-gray-200/60">
-                        <div className="flex items-center space-x-2">
+                      <div className="flex items-center justify-between pt-6 border-t-2 border-gray-100">
+                        <div className="flex items-center gap-3 w-full">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onDocumentSelect?.(document)}
-                            className="px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium"
+                            className="flex-1 px-5 py-4 text-white rounded-2xl transition-all duration-300 font-bold hover:scale-110 flex items-center justify-center border-0"
                             title="View document"
+                            style={{ 
+                              fontFamily: "'Inter', 'system-ui', sans-serif", 
+                              background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 50%, #1D4ED8 100%)',
+                              boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)',
+                              border: 'none',
+                              color: '#FFFFFF'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 50%, #1E40AF 100%)';
+                              e.currentTarget.style.boxShadow = '0 8px 25px rgba(37, 99, 235, 0.5)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'linear-gradient(135deg, #3B82F6 0%, #2563EB 50%, #1D4ED8 100%)';
+                              e.currentTarget.style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.4)';
+                            }}
                           >
-                            <EyeIcon className="h-4 w-4 mr-2" />
+                            <EyeIcon className="h-5 w-5 mr-2 text-white" style={{ color: '#FFFFFF' }} />
                             View
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDownload(document)}
-                            className="px-4 py-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-all duration-200 font-medium"
+                            className="flex-1 px-5 py-4 text-white rounded-2xl transition-all duration-300 font-bold hover:scale-110 flex items-center justify-center border-0"
                             title="Download document"
+                            style={{ 
+                              fontFamily: "'Inter', 'system-ui', sans-serif", 
+                              background: 'linear-gradient(135deg, #10B981 0%, #059669 50%, #047857 100%)',
+                              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
+                              border: 'none',
+                              color: '#FFFFFF'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'linear-gradient(135deg, #059669 0%, #047857 50%, #065F46 100%)';
+                              e.currentTarget.style.boxShadow = '0 8px 25px rgba(5, 150, 105, 0.5)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 50%, #047857 100%)';
+                              e.currentTarget.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.4)';
+                            }}
                           >
-                            <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
+                            <ArrowDownTrayIcon className="h-5 w-5 mr-2 text-white" style={{ color: '#FFFFFF' }} />
                             Download
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(document._id || '')}
-                            className="px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200 font-medium"
+                            className="p-4 text-white rounded-2xl transition-all duration-300 hover:scale-110 flex items-center justify-center border-0"
                             title="Delete document"
+                            style={{ 
+                              background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 50%, #B91C1C 100%)',
+                              boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)',
+                              border: 'none',
+                              color: '#FFFFFF'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'linear-gradient(135deg, #DC2626 0%, #B91C1C 50%, #991B1B 100%)';
+                              e.currentTarget.style.boxShadow = '0 8px 25px rgba(220, 38, 38, 0.5)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'linear-gradient(135deg, #EF4444 0%, #DC2626 50%, #B91C1C 100%)';
+                              e.currentTarget.style.boxShadow = '0 4px 15px rgba(239, 68, 68, 0.4)';
+                            }}
                           >
-                            <TrashIcon className="h-4 w-4 mr-2" />
-                            Delete
+                            <TrashIcon className="h-5 w-5 text-white" style={{ color: '#FFFFFF' }} />
                           </Button>
                         </div>
                       </div>
@@ -494,11 +664,12 @@ export function DocumentList({
                   </div>
                 </CardContent>
               </Card>
+                </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Professional Pagination */}
-          {data?.data && data.data.totalPages > 1 && (
+          {data?.totalPages && data.totalPages > 1 && (
             <div className="flex justify-center items-center space-x-4 mt-12">
               <Button
                 variant="outline"
@@ -514,7 +685,7 @@ export function DocumentList({
               </Button>
               
               <div className="flex items-center space-x-2">
-                {Array.from({ length: Math.min(5, data.data.totalPages) }, (_, i) => {
+                {Array.from({ length: Math.min(5, data.totalPages) }, (_, i) => {
                   const page = i + 1;
                   return (
                     <Button
@@ -538,7 +709,7 @@ export function DocumentList({
                 variant="outline"
                 size="sm"
                 onClick={() => setLocalCurrentPage(currentPage + 1)}
-                disabled={currentPage === data.data.totalPages}
+                disabled={currentPage === data.totalPages}
                 className="px-6 py-2.5 text-sm font-medium rounded-lg border-gray-300 hover:border-primary-500 hover:text-primary-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next

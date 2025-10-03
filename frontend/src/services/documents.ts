@@ -278,8 +278,9 @@ class DocumentService {
   }
 
   public async getDocumentChunks(id: string): Promise<any[]> {
-    const response = await apiService.get<{ success: boolean; data: any[] }>(`/chunks/document/${id}`);
-    return response.data || [];
+    // apiService.get already unwraps the response, so we get the chunks array directly
+    const chunks = await apiService.get<any[]>(`/chunks/document/${id}`);
+    return chunks || [];
   }
 
   public async getChunk(id: string): Promise<any> {

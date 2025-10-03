@@ -5,6 +5,7 @@ import { Document, DocumentStatus } from '@shared/types';
 import { Button } from '../ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { Spinner } from '../ui/Spinner';
+import { useAuthStore } from '../../stores/auth';
 
 interface DualDocumentViewerProps {
   documentId: string;
@@ -17,6 +18,8 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
   const [conversionError, setConversionError] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<'original' | 'word' | 'split' | 'chunks'>('split');
   const [showChunks, setShowChunks] = useState(false);
+  const [editableText, setEditableText] = useState<string>('');
+  const { token } = useAuthStore();
 
   const { data: document, isLoading, error } = useQuery({
     queryKey: ['document', documentId],
@@ -30,10 +33,25 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
     enabled: !!documentId && showChunks,
   });
 
-  // Check if Word document already exists
+  // Check if Word document already exists and load extracted text
   useEffect(() => {
     if (document?.metadata?.wordDocumentUrl) {
       setWordUrl(document.metadata.wordDocumentUrl);
+    }
+    // Load the extracted text for editing
+    if (document?.extractedText) {
+      setEditableText(document.extractedText);
+    }
+    // Debug log
+    if (document) {
+      console.log('📄 Document Debug Info:', {
+        id: document._id,
+        title: document.title,
+        s3Key: document.s3Key,
+        originalFilename: document.originalFilename,
+        mimeType: document.metadata?.mimeType,
+        embedUrl: `/uploads/${document.s3Key}`
+      });
     }
   }, [document]);
 
@@ -69,10 +87,10 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 flex items-center justify-center">
         <div className="text-center">
           <Spinner size="lg" />
-          <p className="text-gray-600 mt-4">Loading document...</p>
+          <p className="text-gray-700 mt-6 text-xl font-bold" style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>Loading document...</p>
         </div>
       </div>
     );
@@ -80,13 +98,32 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
 
   if (error || !document) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Document Not Found</h1>
-          <p className="text-gray-600 mb-4">The requested document could not be found.</p>
+          <div className="mx-auto w-24 h-24 bg-gradient-to-br from-red-100 to-red-200 rounded-3xl flex items-center justify-center mb-8 shadow-2xl">
+            <span className="text-5xl">⚠️</span>
+          </div>
+          <h1 className="text-4xl font-black text-gray-900 mb-5" style={{ fontFamily: "'Inter', 'system-ui', sans-serif", letterSpacing: '-0.03em' }}>Document Not Found</h1>
+          <p className="text-gray-600 mb-8 text-lg font-medium" style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>The requested document could not be found.</p>
           {onClose && (
-            <Button onClick={onClose} variant="outline">
-              Go back to documents
+            <Button 
+              onClick={onClose} 
+              variant="outline" 
+              className="px-8 py-4 font-bold text-white rounded-2xl text-lg border-0"
+              style={{ 
+                fontFamily: "Inter, 'system-ui', sans-serif",
+                background: 'linear-gradient(135deg, rgb(16, 185, 129) 0%, rgb(59, 130, 246) 50%, rgb(37, 99, 235) 100%)',
+                boxShadow: 'rgba(16, 185, 129, 0.4) 0px 6px 20px',
+                border: 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.6) 0px 10px 30px';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.4) 0px 6px 20px';
+              }}
+            >
+              ← Go back to documents
             </Button>
           )}
         </div>
@@ -95,84 +132,209 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-lg px-8 py-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold text-gray-900">{document.title}</h1>
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(document.status)}`}>
+          <div className="flex items-center space-x-5">
+            <h1 className="text-3xl font-black text-gray-900" style={{ fontFamily: "'Inter', 'system-ui', sans-serif", letterSpacing: '-0.03em' }}>{document.title}</h1>
+            <span className={`px-4 py-2 rounded-xl text-xs font-bold shadow-md uppercase tracking-wider ${getStatusColor(document.status)}`} style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>
               {getStatusText(document.status)}
             </span>
           </div>
           
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-4">
             {/* View Toggle */}
-            <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+            <div className="flex gap-3">
               <button
                 onClick={() => setActiveView('original')}
-                className={`px-3 py-2 text-sm font-medium ${
-                  activeView === 'original'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                className={`px-6 py-3 text-sm font-bold transition-all duration-300 rounded-xl border-0 ${
+                  activeView === 'original' ? 'text-white' : 'text-gray-700'
                 }`}
+                style={{ 
+                  fontFamily: "'Inter', 'system-ui', sans-serif",
+                  background: activeView === 'original' 
+                    ? 'linear-gradient(135deg, #3B82F6 0%, #2563EB 50%, #1D4ED8 100%)'
+                    : 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)',
+                  boxShadow: activeView === 'original'
+                    ? '0 4px 15px rgba(59, 130, 246, 0.4)'
+                    : '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (activeView !== 'original') {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (activeView !== 'original') {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)';
+                  }
+                }}
               >
-                Original
+                📄 Original
               </button>
               <button
                 onClick={() => setActiveView('word')}
-                className={`px-3 py-2 text-sm font-medium ${
-                  activeView === 'word'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                className={`px-6 py-3 text-sm font-bold transition-all duration-300 rounded-xl border-0 ${
+                  activeView === 'word' ? 'text-white' : 'text-gray-700'
                 }`}
                 disabled={!wordUrl}
+                style={{ 
+                  fontFamily: "'Inter', 'system-ui', sans-serif",
+                  background: activeView === 'word' 
+                    ? 'linear-gradient(135deg, #10B981 0%, #059669 50%, #047857 100%)'
+                    : 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)',
+                  boxShadow: activeView === 'word'
+                    ? '0 4px 15px rgba(16, 185, 129, 0.4)'
+                    : '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  border: 'none',
+                  opacity: !wordUrl ? 0.5 : 1,
+                  cursor: !wordUrl ? 'not-allowed' : 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  if (activeView !== 'word' && wordUrl) {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (activeView !== 'word' && wordUrl) {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)';
+                  }
+                }}
               >
-                Word
+                📝 Word
               </button>
               <button
                 onClick={() => setActiveView('split')}
-                className={`px-3 py-2 text-sm font-medium ${
-                  activeView === 'split'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                className={`px-6 py-3 text-sm font-bold transition-all duration-300 rounded-xl border-0 ${
+                  activeView === 'split' ? 'text-white' : 'text-gray-700'
                 }`}
+                style={{ 
+                  fontFamily: "'Inter', 'system-ui', sans-serif",
+                  background: activeView === 'split' 
+                    ? 'linear-gradient(135deg, #A855F7 0%, #9333EA 50%, #7E22CE 100%)'
+                    : 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)',
+                  boxShadow: activeView === 'split'
+                    ? '0 4px 15px rgba(168, 85, 247, 0.4)'
+                    : '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (activeView !== 'split') {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (activeView !== 'split') {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)';
+                  }
+                }}
               >
-                Split View
+                🔀 Split View
               </button>
               <button
                 onClick={() => {
                   setActiveView('chunks');
                   setShowChunks(true);
                 }}
-                className={`px-3 py-2 text-sm font-medium ${
-                  activeView === 'chunks'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                className={`px-6 py-3 text-sm font-bold transition-all duration-300 rounded-xl border-0 ${
+                  activeView === 'chunks' ? 'text-white' : 'text-gray-700'
                 }`}
+                style={{ 
+                  fontFamily: "'Inter', 'system-ui', sans-serif",
+                  background: activeView === 'chunks' 
+                    ? 'linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%)'
+                    : 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)',
+                  boxShadow: activeView === 'chunks'
+                    ? '0 4px 15px rgba(245, 158, 11, 0.4)'
+                    : '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (activeView !== 'chunks') {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (activeView !== 'chunks') {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)';
+                  }
+                }}
               >
-                Chunks
+                🧩 Chunks
               </button>
             </div>
 
             {/* Word Document Actions */}
             {wordUrl ? (
-              <Button onClick={handleDownloadWord} variant="outline" size="sm">
-                Download Word
+              <Button 
+                onClick={handleDownloadWord} 
+                variant="outline" 
+                size="sm" 
+                className="px-6 py-3 font-bold text-white rounded-xl border-0"
+                style={{ 
+                  fontFamily: "Inter, 'system-ui', sans-serif",
+                  background: 'linear-gradient(135deg, rgb(16, 185, 129) 0%, rgb(59, 130, 246) 50%, rgb(37, 99, 235) 100%)',
+                  boxShadow: 'rgba(16, 185, 129, 0.4) 0px 6px 20px',
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.6) 0px 10px 30px';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.4) 0px 6px 20px';
+                }}
+              >
+                ⬇️ Download Word
               </Button>
             ) : (
               <Button 
                 onClick={handleConvertToWord} 
                 disabled={isConverting || document.status !== DocumentStatus.INDEXED}
                 size="sm"
+                className="px-6 py-3 font-bold text-white rounded-xl border-0 disabled:opacity-50"
+                style={{ 
+                  fontFamily: "Inter, 'system-ui', sans-serif",
+                  background: 'linear-gradient(135deg, rgb(16, 185, 129) 0%, rgb(59, 130, 246) 50%, rgb(37, 99, 235) 100%)',
+                  boxShadow: 'rgba(16, 185, 129, 0.4) 0px 6px 20px',
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isConverting && document.status === DocumentStatus.INDEXED) {
+                    e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.6) 0px 10px 30px';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isConverting && document.status === DocumentStatus.INDEXED) {
+                    e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.4) 0px 6px 20px';
+                  }
+                }}
               >
-                {isConverting ? 'Converting...' : 'Convert to Word'}
+                {isConverting ? '⏳ Converting...' : '✨ Convert to Word'}
               </Button>
             )}
 
             {onClose && (
-              <Button onClick={onClose} variant="outline" size="sm">
-                Close
+              <Button 
+                onClick={onClose} 
+                variant="outline" 
+                size="sm" 
+                className="px-6 py-3 font-bold text-white rounded-xl border-0"
+                style={{ 
+                  fontFamily: "Inter, 'system-ui', sans-serif",
+                  background: 'linear-gradient(135deg, rgb(16, 185, 129) 0%, rgb(59, 130, 246) 50%, rgb(37, 99, 235) 100%)',
+                  boxShadow: 'rgba(16, 185, 129, 0.4) 0px 6px 20px',
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.6) 0px 10px 30px';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.4) 0px 6px 20px';
+                }}
+              >
+                ✕ Close
               </Button>
             )}
           </div>
@@ -180,8 +342,8 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
 
         {/* Conversion Error */}
         {conversionError && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-600">{conversionError}</p>
+          <div className="mt-5 p-4 bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-300 rounded-xl shadow-md">
+            <p className="text-sm text-red-700 font-semibold" style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>⚠️ {conversionError}</p>
           </div>
         )}
       </div>
@@ -189,32 +351,50 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
       {/* Content Area */}
       <div className="flex-1 p-6">
         {activeView === 'split' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+          <div className="grid grid-cols-2 gap-6 h-full">
             {/* Original Document */}
-            <Card className="h-full">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <span className="emoji">📄</span>
-                  <span>Original Document</span>
+            <Card className="h-full shadow-xl rounded-2xl border-0 bg-white overflow-hidden">
+              <CardHeader className="bg-gradient-to-br from-blue-50 via-white to-purple-50/30 border-b border-gray-100">
+                <CardTitle className="flex items-center space-x-3" style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>
+                  <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-md">
+                    <span className="text-2xl">📄</span>
+                  </div>
+                  <span className="text-xl font-extrabold text-gray-900">Original Document</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="h-full">
-                <div className="h-96 border border-gray-200 rounded-lg overflow-hidden">
-                  {document.type === 'PDF' ? (
-                    <iframe
-                      src={`/api/documents/${documentId}/view`}
+              <CardContent className="h-full p-4">
+                <div className="h-[600px] border-2 border-gray-200 rounded-2xl overflow-hidden shadow-inner">
+                  {(document.metadata?.mimeType?.includes('pdf') || 
+                    document.originalFilename?.toLowerCase().endsWith('.pdf') ||
+                    document.type === 'PDF') ? (
+                    <embed
+                      src={`/uploads/${document.s3Key}`}
+                      type="application/pdf"
                       className="w-full h-full"
                       title="Original Document"
                     />
                   ) : (
-                    <div className="flex items-center justify-center h-full bg-gray-50">
+                    <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-50 to-gray-100">
                       <div className="text-center">
-                        <p className="text-gray-500 mb-2">Document Preview</p>
+                        <p className="text-gray-600 mb-4 font-semibold" style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>Document Preview</p>
                         <Button 
-                          onClick={() => window.open(`/api/documents/${documentId}/download`, '_blank')}
+                          onClick={() => window.open(`/api/v1/documents/${documentId}/download`, '_blank')}
                           variant="outline"
+                          className="px-6 py-3 font-bold text-white rounded-xl border-0"
+                          style={{ 
+                            fontFamily: "Inter, 'system-ui', sans-serif",
+                            background: 'linear-gradient(135deg, rgb(16, 185, 129) 0%, rgb(59, 130, 246) 50%, rgb(37, 99, 235) 100%)',
+                            boxShadow: 'rgba(16, 185, 129, 0.4) 0px 6px 20px',
+                            border: 'none'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.6) 0px 10px 30px';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.4) 0px 6px 20px';
+                          }}
                         >
-                          Download Original
+                          📥 Download Original
                         </Button>
                       </div>
                     </div>
@@ -224,50 +404,123 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
             </Card>
 
             {/* Word Document */}
-            <Card className="h-full">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <span className="emoji">📝</span>
-                  <span>Editable Word Document</span>
+            <Card className="h-full shadow-xl rounded-2xl border-0 bg-white overflow-hidden">
+              <CardHeader className="bg-gradient-to-br from-emerald-50 via-white to-blue-50/30 border-b border-gray-100">
+                <CardTitle className="flex items-center space-x-3" style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>
+                  <div className="p-2 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-md">
+                    <span className="text-2xl">📝</span>
+                  </div>
+                  <span className="text-xl font-extrabold text-gray-900">Editable Word Document</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="h-full">
-                <div className="h-96 border border-gray-200 rounded-lg overflow-hidden">
-                  {wordUrl ? (
-                    <div className="flex items-center justify-center h-full bg-gradient-to-br from-green-50 to-blue-50">
-                      <div className="text-center max-w-md p-8">
-                        <div className="mx-auto w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                          <span className="text-4xl">📝</span>
+              <CardContent className="h-full p-4">
+                <div className="h-[600px] border-2 border-gray-200 rounded-2xl overflow-hidden shadow-inner bg-white">
+                  {editableText || wordUrl ? (
+                    <div className="h-full flex flex-col">
+                      <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-emerald-50 to-blue-50 border-b border-gray-200">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-bold text-gray-700" style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>
+                            ✏️ Edit Document
+                          </span>
+                          <span className="text-xs text-gray-500 font-medium" style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>
+                            {editableText.length} characters
+                          </span>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-3">Word Document Ready!</h3>
-                        <p className="text-gray-600 mb-6">
-                          Download the editable Word version to view and edit on your device.
-                        </p>
-                        <Button 
-                          onClick={() => window.open(wordUrl, '_blank')}
-                          className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all"
-                        >
-                          <span className="mr-2">📥</span>
-                          Download Word Document
-                        </Button>
-                        <p className="text-xs text-gray-500 mt-4">
-                          Opens in a new tab • Compatible with Microsoft Word, Google Docs, LibreOffice
-                        </p>
+                        <div className="flex items-center space-x-2">
+                          <Button 
+                            onClick={() => {
+                              const blob = new Blob([editableText], { type: 'text/plain' });
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `${document.title || 'document'}_edited.txt`;
+                              a.click();
+                              URL.revokeObjectURL(url);
+                            }}
+                            size="sm"
+                            className="text-white px-4 py-2 rounded-lg font-bold text-xs border-0"
+                            style={{ 
+                              fontFamily: "Inter, 'system-ui', sans-serif",
+                              background: 'linear-gradient(135deg, rgb(16, 185, 129) 0%, rgb(59, 130, 246) 50%, rgb(37, 99, 235) 100%)',
+                              boxShadow: 'rgba(16, 185, 129, 0.4) 0px 4px 15px',
+                              border: 'none'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.6) 0px 6px 20px';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.4) 0px 4px 15px';
+                            }}
+                          >
+                            💾 Save Edits
+                          </Button>
+                          {wordUrl && (
+                            <Button 
+                              onClick={() => window.open(wordUrl, '_blank')}
+                              size="sm"
+                              className="text-white px-4 py-2 rounded-lg font-bold text-xs border-0"
+                              style={{ 
+                                fontFamily: "Inter, 'system-ui', sans-serif",
+                                background: 'linear-gradient(135deg, rgb(16, 185, 129) 0%, rgb(59, 130, 246) 50%, rgb(37, 99, 235) 100%)',
+                                boxShadow: 'rgba(16, 185, 129, 0.4) 0px 4px 15px',
+                                border: 'none'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.6) 0px 6px 20px';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.4) 0px 4px 15px';
+                              }}
+                            >
+                              📥 Download Word
+                            </Button>
+                          )}
+                        </div>
                       </div>
+                      <textarea
+                        value={editableText}
+                        onChange={(e) => setEditableText(e.target.value)}
+                        className="flex-1 w-full p-6 resize-none focus:outline-none"
+                        style={{ 
+                          fontFamily: "'Georgia', 'Times New Roman', serif",
+                          fontSize: '16px',
+                          lineHeight: '1.8',
+                          color: '#1f2937',
+                          backgroundColor: '#ffffff'
+                        }}
+                        placeholder="Document content will appear here for editing..."
+                      />
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center h-full bg-gray-50">
+                    <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-50 to-gray-100">
                       <div className="text-center">
-                        <p className="text-gray-500 mb-4">Word document not available</p>
+                        <p className="text-gray-600 mb-6 font-semibold text-lg" style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>Word document not available</p>
                         <Button 
                           onClick={handleConvertToWord}
                           disabled={isConverting || document?.status !== DocumentStatus.INDEXED}
                           size="sm"
+                          className="px-6 py-3 font-bold text-white rounded-xl disabled:opacity-50 border-0"
+                          style={{ 
+                            fontFamily: "Inter, 'system-ui', sans-serif",
+                            background: 'linear-gradient(135deg, rgb(16, 185, 129) 0%, rgb(59, 130, 246) 50%, rgb(37, 99, 235) 100%)',
+                            boxShadow: 'rgba(16, 185, 129, 0.4) 0px 6px 20px',
+                            border: 'none'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isConverting && document?.status === DocumentStatus.INDEXED) {
+                              e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.6) 0px 10px 30px';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isConverting && document?.status === DocumentStatus.INDEXED) {
+                              e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.4) 0px 6px 20px';
+                            }
+                          }}
                         >
-                          {isConverting ? 'Converting...' : 'Convert to Word'}
+                          {isConverting ? '⏳ Converting...' : '✨ Convert to Word'}
                         </Button>
                         {conversionError && (
-                          <p className="text-red-500 text-sm mt-2">{conversionError}</p>
+                          <p className="text-red-600 text-sm mt-4 font-semibold" style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>⚠️ {conversionError}</p>
                         )}
                       </div>
                     </div>
@@ -293,14 +546,27 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
                     title="Original Document"
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full bg-gray-50">
+                  <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-50 to-gray-100">
                     <div className="text-center">
-                      <p className="text-gray-500 mb-2">Document Preview</p>
+                      <p className="text-gray-600 mb-4 font-semibold" style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}>Document Preview</p>
                       <Button 
                         onClick={() => window.open(`/api/documents/${documentId}/download`, '_blank')}
                         variant="outline"
+                        className="px-6 py-3 font-bold text-white rounded-xl border-0"
+                        style={{ 
+                          fontFamily: "Inter, 'system-ui', sans-serif",
+                          background: 'linear-gradient(135deg, rgb(16, 185, 129) 0%, rgb(59, 130, 246) 50%, rgb(37, 99, 235) 100%)',
+                          boxShadow: 'rgba(16, 185, 129, 0.4) 0px 6px 20px',
+                          border: 'none'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.6) 0px 10px 30px';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.4) 0px 6px 20px';
+                        }}
                       >
-                        Download Original
+                        📥 Download Original
                       </Button>
                     </div>
                   </div>

@@ -20,8 +20,22 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const logger = new Logger('Bootstrap');
 
-  // Security middleware
-  app.use(helmet());
+  // Security middleware with relaxed CSP for PDF embedding
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        imgSrc: ["'self'", "data:", "blob:"],
+        objectSrc: ["'self'"],
+        frameSrc: ["'self'"],
+        workerSrc: ["'self'", "blob:"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }));
   app.use(compression());
 
   // CORS configuration
@@ -39,7 +53,8 @@ async function bootstrap() {
   });
 
   // Static file serving for local storage
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+  // For local development, uploads are at project root, not in backend folder
+  app.useStaticAssets(join(__dirname, '..', '..', 'uploads'), {
     prefix: '/uploads/',
   });
 
