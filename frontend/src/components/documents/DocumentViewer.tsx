@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   DocumentIcon,
   ArrowDownTrayIcon,
@@ -17,6 +17,7 @@ import { formatDate, formatFileSize } from '../../utils/format';
 import { Button } from '../ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/Card';
 import { documentService } from '../../services/documents';
+import { useAuthStore } from '../../stores/auth';
 import { Document, DocumentStatus } from '@shared/types';
 
 interface DocumentViewerProps {
@@ -25,14 +26,21 @@ interface DocumentViewerProps {
 }
 
 export function DocumentViewer({ documentId, onClose }: DocumentViewerProps) {
+  const { token } = useAuthStore();
+  const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [showChunks, setShowChunks] = useState(false);
 
   const { data: document, isLoading, error } = useQuery({
     queryKey: ['document', documentId],
-    queryFn: () => documentService.getDocument(documentId),
+    queryFn: () => {
+      console.log('🔍 DocumentViewer - Fetching document with ID:', documentId);
+      return documentService.getDocument(documentId);
+    },
     enabled: !!documentId,
+    staleTime: 0, // Force fresh data
+    gcTime: 0, // Don't cache
   });
 
   const { data: chunks, isLoading: chunksLoading } = useQuery({
@@ -41,13 +49,114 @@ export function DocumentViewer({ documentId, onClose }: DocumentViewerProps) {
     enabled: !!documentId && showChunks,
   });
 
+  // Clear cache when documentId changes to prevent stale data
+  useEffect(() => {
+    console.log('🔍 DocumentViewer - Document ID changed, clearing cache for:', documentId);
+    // Clear all document-related queries to prevent stale data
+    queryClient.invalidateQueries({ queryKey: ['document'] });
+    queryClient.invalidateQueries({ queryKey: ['document-chunks'] });
+    queryClient.removeQueries({ queryKey: ['document', documentId] });
+    queryClient.removeQueries({ queryKey: ['document-chunks', documentId] });
+  }, [documentId, queryClient]);
+
+  // Debug logging for document data
+  useEffect(() => {
+    if (document) {
+      console.log('🔍 DocumentViewer - Document received:', {
+        documentId,
+        document,
+        s3Key: document.s3Key,
+        filename: document.filename,
+        originalFilename: document.originalFilename,
+        title: document.title
+      });
+    }
+  }, [document, documentId]);
+
+  // Helper function to get the correct file path
+  const getDocumentPath = (doc: any) => {
+    console.log('🔍 DocumentViewer Path Debug:', {
+      document: doc,
+      s3Key: doc?.s3Key,
+      filename: doc?.filename,
+      originalFilename: doc?.originalFilename,
+      _id: doc?._id
+    });
+
+    if (doc?.s3Key && doc.s3Key !== 'null' && doc.s3Key !== 'undefined') {
+      console.log('✅ Using s3Key:', doc.s3Key);
+      return doc.s3Key;
+    }
+    
+    if (doc?.filename && doc.filename !== 'null' && doc.filename !== 'undefined') {
+      console.log('✅ Using filename:', doc.filename);
+      return doc.filename;
+    }
+    
+    if (doc?._id) {
+      console.log('⚠️ Falling back to document ID:', doc._id);
+      return `documents/${doc._id}.pdf`;
+    }
+    
+    console.log('❌ No valid path found');
+    return 'documents/unknown.pdf';
+  };
+
   const handleDownload = async () => {
     if (!document) return;
     
     try {
-      await documentService.downloadDocument(document._id, document.filename);
+      // Use the API endpoint to get the proper download URL
+      const response = await fetch(`/api/v1/documents/${document._id}/download`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      const downloadUrl = data.url;
+      
+      console.log('🔍 DocumentViewer Download Debug:', {
+        document,
+        apiUrl: `/api/v1/documents/${document._id}/download`,
+        downloadUrl,
+        originalFilename: document.originalFilename,
+        s3Key: document.s3Key
+      });
+      
+      // Create download link with the proper URL and original filename
+      const link = window.document.createElement('a');
+      link.href = downloadUrl;
+      link.download = document.originalFilename || document.filename || 'document';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      
+      // Add to DOM, click, and remove
+      window.document.body.appendChild(link);
+      link.click();
+      window.document.body.removeChild(link);
     } catch (error) {
       console.error('Download failed:', error);
+      // Fallback to direct file access
+      try {
+        const downloadUrl = `/uploads/${getDocumentPath(document)}`;
+        const link = window.document.createElement('a');
+        link.href = downloadUrl;
+        link.download = document.originalFilename || document.filename || 'document';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        
+        window.document.body.appendChild(link);
+        link.click();
+        window.document.body.removeChild(link);
+      } catch (fallbackError) {
+        console.error('Fallback download failed:', fallbackError);
+      }
     }
   };
 
@@ -55,7 +164,8 @@ export function DocumentViewer({ documentId, onClose }: DocumentViewerProps) {
     if (!document) return;
     
     try {
-      const { downloadUrl } = await documentService.getDocumentDownloadUrl(document._id);
+      // Use direct file path instead of API endpoint
+      const downloadUrl = `${window.location.origin}/uploads/${getDocumentPath(document)}`;
       await navigator.clipboard.writeText(downloadUrl);
       // Show success toast
     } catch (error) {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { 
   MagnifyingGlassIcon,
@@ -22,6 +22,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { documentService, DocumentFilters, DocumentListParams } from '../../services/documents';
 import { Document, DocumentStatus, DocumentCategory } from '@shared/types';
 import { useDocumentStore } from '../../stores/documents';
+import { useAuthStore } from '../../stores/auth';
 
 interface DocumentListProps {
   onDocumentSelect?: (document: Document) => void;
@@ -41,7 +42,7 @@ const containerVariants = {
   },
 };
 
-const cardVariants = {
+const cardVariants: Variants = {
   hidden: { 
     opacity: 0, 
     y: 30,
@@ -52,7 +53,7 @@ const cardVariants = {
     y: 0,
     scale: 1,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 100,
       damping: 15,
       mass: 0.5,
@@ -62,7 +63,7 @@ const cardVariants = {
     y: -8,
     scale: 1.02,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 300,
       damping: 20,
     },
@@ -72,14 +73,14 @@ const cardVariants = {
   },
 };
 
-const searchVariants = {
+const searchVariants: Variants = {
   hidden: { opacity: 0, scale: 0.95, y: -20 },
   visible: { 
     opacity: 1, 
     scale: 1, 
     y: 0,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 150,
       damping: 20,
     },
@@ -91,6 +92,7 @@ export function DocumentList({
   onDocumentDelete, 
   showActions = true 
 }: DocumentListProps) {
+  const { token } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setLocalCurrentPage] = useState(1);
@@ -108,7 +110,7 @@ export function DocumentList({
   });
 
   const { 
-    documents, 
+    // documents, 
     setDocuments, 
     setTotalCount, 
     setTotalPages,
@@ -119,7 +121,7 @@ export function DocumentList({
   } = useDocumentStore();
 
   // Ensure documents is always an array
-  const safeDocuments = documents || [];
+  // const safeDocuments = documents || [];
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['documents', currentPage, searchQuery, filters, sortBy, sortOrder],
@@ -204,12 +206,93 @@ export function DocumentList({
     }
   };
 
+  // Helper function to get the correct file path
+  const getDocumentPath = (doc: Document) => {
+    console.log('🔍 DocumentList Path Debug:', {
+      document: doc,
+      s3Key: doc?.s3Key,
+      filename: doc?.filename,
+      originalFilename: doc?.originalFilename,
+      _id: doc?._id
+    });
+
+    if (doc?.s3Key && doc.s3Key !== 'null' && doc.s3Key !== 'undefined') {
+      console.log('✅ Using s3Key:', doc.s3Key);
+      return doc.s3Key;
+    }
+    
+    if (doc?.filename && doc.filename !== 'null' && doc.filename !== 'undefined') {
+      console.log('✅ Using filename:', doc.filename);
+      return doc.filename;
+    }
+    
+    if (doc?._id) {
+      console.log('⚠️ Falling back to document ID:', doc._id);
+      return `documents/${doc._id}.pdf`;
+    }
+    
+    console.log('❌ No valid path found');
+    return 'documents/unknown.pdf';
+  };
+
   const handleDownload = async (document: Document) => {
     try {
-      await documentService.downloadDocument(document._id || '', document.filename);
+      // Use the API endpoint to get the proper download URL
+      const response = await fetch(`/api/v1/documents/${document._id}/download`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      const downloadUrl = data.url;
+      
+      console.log('🔍 Download Debug:', {
+        document,
+        apiUrl: `/api/v1/documents/${document._id}/download`,
+        downloadUrl,
+        originalFilename: document.originalFilename,
+        s3Key: document.s3Key
+      });
+      
+      // Create download link with the proper URL and original filename
+      const link = window.document.createElement('a');
+      link.href = downloadUrl;
+      link.download = document.originalFilename || document.filename || 'document';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      
+      // Add to DOM, click, and remove
+      window.document.body.appendChild(link);
+      link.click();
+      window.document.body.removeChild(link);
+      
       toast.success('Download started');
     } catch (error: any) {
-      toast.error('Failed to download document');
+      console.error('Download failed:', error);
+      // Fallback to direct file access
+      try {
+        const downloadUrl = `/uploads/${getDocumentPath(document)}`;
+        const link = window.document.createElement('a');
+        link.href = downloadUrl;
+        link.download = document.originalFilename || document.filename || 'document';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        
+        window.document.body.appendChild(link);
+        link.click();
+        window.document.body.removeChild(link);
+        
+        toast.success('Download started (fallback)');
+      } catch (fallbackError) {
+        console.error('Fallback download failed:', fallbackError);
+        toast.error('Failed to download document');
+      }
     }
   };
 
@@ -279,6 +362,7 @@ export function DocumentList({
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
+              aria-expanded={showFilters}
               className="flex items-center space-x-2 h-16 px-8 text-base font-bold border-0 text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl flex-shrink-0"
               style={{ fontFamily: "'Inter', 'system-ui', sans-serif" }}
             >

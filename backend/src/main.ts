@@ -28,9 +28,14 @@ async function bootstrap() {
         styleSrc: ["'self'", "'unsafe-inline'"],
         scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
         imgSrc: ["'self'", "data:", "blob:"],
-        objectSrc: ["'self'"],
-        frameSrc: ["'self'"],
+        objectSrc: ["'self'", "data:", "blob:"],
+        frameSrc: ["'self'", "data:", "blob:", "http://localhost:3000", "http://localhost:3001"],
+        frameAncestors: ["'self'", "http://localhost:3000", "http://localhost:3001"],
         workerSrc: ["'self'", "blob:"],
+        connectSrc: ["'self'", "http://localhost:3000", "http://localhost:3001"],
+        fontSrc: ["'self'", "https:", "data:"],
+        mediaSrc: ["'self'", "data:", "blob:"],
+        childSrc: ["'self'", "blob:", "data:"],
       },
     },
     crossOriginEmbedderPolicy: false,
@@ -38,24 +43,41 @@ async function bootstrap() {
   }));
   app.use(compression());
 
-  // CORS configuration
-  app.enableCors({
-    origin: [
-      configService.get('FRONTEND_URL', 'http://localhost:3001'),
-      'http://localhost:3001',
-      'http://localhost:5173',
-      'http://127.0.0.1:3001',
-      'http://127.0.0.1:5173'
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  // Remove X-Frame-Options header to allow iframe embedding
+  app.use((req, res, next) => {
+    res.removeHeader("X-Frame-Options");
+    next();
   });
 
-  // Static file serving for local storage
-  // For local development, uploads are at project root, not in backend folder
-  app.useStaticAssets(join(__dirname, '..', '..', 'uploads'), {
+  // CORS configuration - Simplified for development
+  app.enableCors({
+    origin: true, // Allow all origins in development
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
+    allowedHeaders: [
+      'Content-Type', 
+      'Authorization', 
+      'X-Requested-With', 
+      'Accept', 
+      'Origin',
+      'Access-Control-Request-Method',
+      'Access-Control-Request-Headers'
+    ],
+    exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
+    preflightContinue: false,
+    optionsSuccessStatus: 200
+  });
+
+  // Static file serving for local storage with CORS headers
+  // For local development, uploads are in the backend folder
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',
+    setHeaders: (res, path) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    }
   });
 
   // Global validation pipe

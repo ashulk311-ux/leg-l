@@ -233,9 +233,8 @@ const initializeApiToken = () => {
     apiService.clearToken();
     console.log('Auth Store: State reset to consistent state');
     
-    // Auto-login after reset to fix the issue
-    console.log('Auth Store: Auto-logging in to fix authentication...');
-    autoLoginAfterReset();
+    // State has been reset to consistent state
+    console.log('Auth Store: State reset to consistent state');
     return;
   }
   
@@ -256,44 +255,11 @@ const initializeApiToken = () => {
       console.log('Auth Store: Initialized API service with token from localStorage');
     } else {
       console.log('Auth Store: No token found in store or localStorage');
-      // Auto-login to fix the issue
-      console.log('Auth Store: Auto-logging in to fix authentication...');
-      autoLoginAfterReset();
+      console.log('Auth Store: User needs to log in manually');
     }
   }
 };
 
-// Auto-login function to fix authentication
-const autoLoginAfterReset = async () => {
-  try {
-    console.log('Auth Store: Starting auto-login...');
-    const response = await fetch('http://localhost:3000/api/v1/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'test@example.com', password: 'password123' }),
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      const accessToken = data.data?.accessToken;
-      
-      if (accessToken) {
-        console.log('Auth Store: Auto-login successful, setting token...');
-        apiService.setToken(accessToken);
-        localStorage.setItem('auth_token', accessToken);
-        useAuthStore.setState({
-          user: data.data?.user,
-          token: accessToken,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-        console.log('Auth Store: Auto-login completed successfully');
-      }
-    }
-  } catch (error) {
-    console.log('Auth Store: Auto-login failed:', error);
-  }
-};
 
 // Initialize on app start
 initializeApiToken();

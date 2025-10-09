@@ -181,6 +181,7 @@ export function SemanticSearch({ onResultSelect, initialQuery = '' }: SemanticSe
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
+              aria-expanded={showFilters}
               className="flex items-center space-x-2"
             >
               <FunnelIcon className="h-3 w-3" />
