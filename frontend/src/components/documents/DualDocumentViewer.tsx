@@ -878,7 +878,8 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
                           fontSize: '16px',
                           lineHeight: '1.8',
                           color: '#1f2937',
-                          backgroundColor: '#ffffff'
+                          backgroundColor: '#ffffff',
+                          height: '100vh'
                         }}
                         placeholder="Document content will appear here for editing..."
                       />
