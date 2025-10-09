@@ -6,6 +6,7 @@ import { Button } from '../ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { Spinner } from '../ui/Spinner';
 import { useAuthStore } from '../../stores/auth';
+import { TinyMCEEditor } from './TinyMCEEditor';
 
 interface DualDocumentViewerProps {
   documentId: string;
@@ -821,11 +822,36 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
                         <div className="flex items-center space-x-2">
                           <Button 
                             onClick={() => {
-                              const blob = new Blob([editableText], { type: 'text/plain' });
+                              // Create HTML blob for rich text content
+                              const htmlContent = `
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                  <meta charset="UTF-8">
+                                  <title>${document.title || 'document'}</title>
+                                  <style>
+                                    body { 
+                                      font-family: Georgia, "Times New Roman", serif; 
+                                      font-size: 16px; 
+                                      line-height: 1.8; 
+                                      color: #1f2937; 
+                                      background-color: #ffffff;
+                                      padding: 24px;
+                                      max-width: 800px;
+                                      margin: 0 auto;
+                                    }
+                                  </style>
+                                </head>
+                                <body>
+                                  ${editableText}
+                                </body>
+                                </html>
+                              `;
+                              const blob = new Blob([htmlContent], { type: 'text/html' });
                               const url = URL.createObjectURL(blob);
                               const a = window.document.createElement('a');
                               a.href = url;
-                              a.download = `${document.title || 'document'}_edited.txt`;
+                              a.download = `${document.title || 'document'}_edited.html`;
                               a.click();
                               URL.revokeObjectURL(url);
                             }}
@@ -844,7 +870,7 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
                               e.currentTarget.style.boxShadow = 'rgba(16, 185, 129, 0.4) 0px 4px 15px';
                             }}
                           >
-                            💾 Save Edits
+                            💾 Save as HTML
                           </Button>
                           {wordUrl && (
                             <Button 
@@ -869,20 +895,13 @@ export function DualDocumentViewer({ documentId, onClose }: DualDocumentViewerPr
                           )}
                         </div>
                       </div>
-                      <textarea
-                        value={editableText}
-                        onChange={(e) => setEditableText(e.target.value)}
-                        className="flex-1 w-full p-6 resize-none focus:outline-none"
-                        style={{ 
-                          fontFamily: "'Georgia', 'Times New Roman', serif",
-                          fontSize: '16px',
-                          lineHeight: '1.8',
-                          color: '#1f2937',
-                          backgroundColor: '#ffffff',
-                          height: '100vh'
-                        }}
-                        placeholder="Document content will appear here for editing..."
-                      />
+                      <div className="flex-1 w-full">
+                        <TinyMCEEditor
+                          value={editableText}
+                          onChange={setEditableText}
+                          height={500}
+                        />
+                      </div>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-50 to-gray-100">
